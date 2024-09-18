@@ -56,7 +56,6 @@ class Monster:
                 return modifier
             
     def display_monster(self):
-        """Print the character's details."""
         print(f"Name: {self.name}")
         print(f"Monster Type: {self.monster_type}")
         print(f"Damage: {self.damage}")
@@ -76,9 +75,10 @@ class Monster:
 
 
 class Character:
-    def __init__(self, name, role, strength, dexterity, constitution, intelligence, wisdom, charisma):
+    def __init__(self, name, role, pronouns, strength, dexterity, constitution, intelligence, wisdom, charisma):
         self.name = name
         self.role = role
+        self.pronouns = pronouns
         
         # core stats
         self.strength = strength
@@ -126,7 +126,6 @@ class Character:
 
 
     def display_character(self):
-        """Print the character's details."""
         print(f"Name: {self.name}")
         print(f"Role: {self.role}")
         print(f"Strength: {self.strength} (Modifier: {get_modifier_value(self.strength)})")
@@ -156,6 +155,10 @@ class Character:
     }
 
     character_level = 1
+
+    evil_rating = 0
+
+    good_rating = 0
 
 
 
@@ -200,69 +203,81 @@ def roll_stat_check_d20(character: Character, target: int, stat: str, additional
     check += additional_modifier
 
     if check >= target:
-        print(f"Your roll of {check} succeded! You passed the {stat} check!")
+        print(f"Your total roll of {check} succeded! You passed the {stat} check!")
         return True
     else:
-        print(f"Your roll of {check} was a failure... You failed the {stat} check...")
+        print(f"Your total roll of {check} was a failure... You failed the {stat} check...")
         return False
     
 
 def roll_1v1_initiative(monster: Monster, character: Character) -> str:
-    monster_initiative = random.randint(1, 20)
-    monster_initiative += monster.get_modifier(monster.dexterity)
-    character_initiative = random.randint(1, 20)
-    character_initiative += character.get_modifier(character.dexterity)
-    seperator()
-    print(f"Rolling {monster.name}'s initiative...")
-    time.sleep(1)
-    print(f"{monster.name} rolled a {monster_initiative}")
-    seperator()
-    time.sleep(2)
-    print(f"Rolling {character.name}'s initiative...")
-    time.sleep(1)
-    print(f"{character.name} rolled a {character_initiative}")
-    seperator()
-    time.sleep(2)
+    while True:
+        monster_initiative = random.randint(1, 20)
+        monster_initiative += monster.get_modifier(monster.dexterity)
+        character_initiative = random.randint(1, 20)
+        character_initiative += character.get_modifier(character.dexterity)
 
-    if character_initiative > monster_initiative:
-        print(f"Congrats! {character.name} gets to go first!")
-        return 'character'
-    elif monster_initiative > character_initiative:
-        print(f"Unlucky... {monster.name} gets to go first.")
-        return 'monster'
-    else:
-        print("It's a tie! Rerolling...")
+        if monster_initiative < 0:
+            monster_initiative = 0
+
+        if character_initiative < 0:
+            character_initiative = 0
+
+        seperator()
+        print(f"Rolling {monster.name}'s initiative...")
+        time.sleep(1)
+        print(f"{monster.name} rolled a {monster_initiative}")
+        seperator()
         time.sleep(2)
-        roll_1v1_initiative(monster, character)
+        print(f"Rolling {character.name}'s initiative...")
+        time.sleep(1)
+        print(f"{character.name} rolled a {character_initiative}")
+        seperator()
+        time.sleep(2)
+
+        if character_initiative > monster_initiative:
+            print(f"Congrats! {character.name} gets to go first!")
+            return 'character'
+        elif monster_initiative > character_initiative:
+            print(f"Unlucky... {monster.name} gets to go first.")
+            return 'monster'
+        else:
+            print("It's a tie! Rerolling...")
+            time.sleep(2)
 
 
-def roll_flee_check(monster: Monster, character: Character) -> bool:
-    monster_flee_check = random.randint(1, 20)
-    monster_flee_check += monster.get_modifier(monster.dexterity)
-    character_flee_check = random.randint(1, 20)
-    character_flee_check += character.get_modifier(character.dexterity)
-    seperator()
-    print(f"Rolling {monster.name}'s flee check...")
-    time.sleep(1)
-    print(f"{monster.name} rolled a {monster_flee_check}")
-    seperator()
-    time.sleep(2)
-    print(f"Rolling {character.name}'s flee check...")
-    time.sleep(1)
-    print(f"{character.name} rolled a {character_flee_check}")
-    seperator()
-    time.sleep(2)
+def roll_flee_check(monster: Monster, character: Character, is_fleeing_possible: bool) -> bool:
+    if is_fleeing_possible:
+        monster_flee_check = random.randint(1, 20)
+        monster_flee_check += monster.get_modifier(monster.dexterity)
+        character_flee_check = random.randint(1, 20)
+        character_flee_check += character.get_modifier(character.dexterity)
+        seperator()
+        print(f"Rolling {monster.name}'s flee check...")
+        time.sleep(1)
+        print(f"{monster.name} rolled a {monster_flee_check}")
+        seperator()
+        time.sleep(2)
+        print(f"Rolling {character.name}'s flee check...")
+        time.sleep(1)
+        print(f"{character.name} rolled a {character_flee_check}")
+        seperator()
+        time.sleep(2)
 
-    if character_flee_check > monster_flee_check:
-        print(f"You succesfully slip away from the {monster.name}.")
-        return True
-    elif monster_flee_check > character_flee_check:
-        print(f"Unlucky... The {monster.name} prevents you from escaping.")
+        if character_flee_check > monster_flee_check:
+            print(f"You succesfully slip away from the {monster.name}.")
+            return True
+        elif monster_flee_check > character_flee_check:
+            print(f"Unlucky... The {monster.name} prevents you from escaping.")
+            return False
+        else:
+            print("It's a tie! Rerolling...")
+            time.sleep(2)
+            roll_1v1_initiative(monster, character)
+
+    else:
+        print("You cannot run from this battle.")
         return False
-    else:
-        print("It's a tie! Rerolling...")
-        time.sleep(2)
-        roll_1v1_initiative(monster, character)
 
 
 
@@ -316,7 +331,7 @@ wizard_special_abilities = ['Spellcasting', 'Magic Shield', 'Polymorph']
 
 
 
-def combat_1v1(monster: Monster, character: Character, initiative: str) -> str:
+def combat_1v1(monster: Monster, character: Character, initiative: str, flee_possibility: bool) -> str:
     seperator()
     print(f"---BATTLE START!---")
     time.sleep(1)
@@ -330,7 +345,7 @@ def combat_1v1(monster: Monster, character: Character, initiative: str) -> str:
     if initiative == 'character':
         while monster_hp > 0 and character_hp > 0:
             print("---Your Turn---")
-            player_turn_result = player_turn_1v1(monster, character)
+            player_turn_result = player_turn_1v1(monster, character, flee_possibility)
             if isinstance(player_turn_result, int):
                 monster_hp -= player_turn_result
             elif player_turn_result == 'fled':
@@ -340,7 +355,7 @@ def combat_1v1(monster: Monster, character: Character, initiative: str) -> str:
             else:
                 print(f"Unknown Action: {player_turn_result}")
 
-            if monster_hp or character_hp < 0:
+            if monster_hp <= 0:
                 break
 
             time.sleep(2)
@@ -370,7 +385,7 @@ def combat_1v1(monster: Monster, character: Character, initiative: str) -> str:
             monster_turn_result = monster_turn_1v1(monster, character)
             character_hp -= monster_turn_result 
 
-            if monster_hp or character_hp < 0:
+            if character_hp <= 0:
                 break
 
             time.sleep(2)
@@ -381,7 +396,7 @@ def combat_1v1(monster: Monster, character: Character, initiative: str) -> str:
             time.sleep(2)
 
             print("---Your Turn---")
-            player_turn_result = player_turn_1v1(monster, character)
+            player_turn_result = player_turn_1v1(monster, character, flee_possibility)
             if isinstance(player_turn_result, int):
                 monster_hp -= player_turn_result
             elif player_turn_result == 'fled':
@@ -412,14 +427,15 @@ def combat_1v1(monster: Monster, character: Character, initiative: str) -> str:
 def monster_turn_1v1(monster: Monster, character: Character) -> int:
     print(f"---{monster.name}'s Turn---")
     monster_attack_roll = random.randint(1, 20)
+    time.sleep(3)
     print(f"{monster.name} rolling vs your AC ({character.armor_class})...")
-    time.sleep(2)
+    time.sleep(3)
 
     if monster_attack_roll == 20:
         monster_crit_damage = roll_damage_value(monster.damage)
         monster_crit_damage += monster_crit_damage
         print(f"The {monster.name} rolls a natural 20, critical hit! You take double damage...")
-        time.sleep(2)
+        time.sleep(3)
         print(f"The {monster.name} deals {monster_crit_damage} damage to you.")
         return monster_crit_damage
     
@@ -435,7 +451,7 @@ def monster_turn_1v1(monster: Monster, character: Character) -> int:
         return 0
 
 
-def player_turn_1v1(monster: Monster, character: Character):
+def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bool):
     while True:
         choice = input("Choices: 1. Attack, 2. Special Ability, 3. Use an Item, 4. Attempt to Flee. Please pick an action (enter the number of your choice): ")
         if choice == '1':
@@ -443,7 +459,7 @@ def player_turn_1v1(monster: Monster, character: Character):
             if character.role.lower() == 'archer':
                 if attack_roll == 20:
                     print(f"You fire a projectile at the {monster.name}...")
-                    time.sleep(2)
+                    time.sleep(3)
                     print(f"You roll a natural 20! Critical hit! Your arrow hits the {monster.name} going straight through it, rips a hole in spacetime, travels through a wormhole in the 5th dimension and plunges itself again deep within the shocked {monster.name}!")
                     crit_damage = roll_damage_value(character.weapon['damage'])
                     crit_damage += crit_damage
@@ -452,7 +468,7 @@ def player_turn_1v1(monster: Monster, character: Character):
                 else:
                     attack_roll += character.get_modifier(character.dexterity)
                     print(f"You fire a projectile at the {monster.name}...")
-                    time.sleep(2)
+                    time.sleep(3)
                     if attack_roll >= monster.armor_class:
                         print("It's a hit!")
                         damage = roll_damage_value(character.weapon['damage'])
@@ -464,7 +480,7 @@ def player_turn_1v1(monster: Monster, character: Character):
             elif character.role.lower() == 'knight':
                 if attack_roll == 20:
                     print(f"You swing your weapon at the {monster.name}...")
-                    time.sleep(2)
+                    time.sleep(3)
                     print(f"You roll a natural 20! Critical hit! Your weapon strikes the {monster.name} with such tremendous force that it creates gravitons, temporarily altering gravity. The {monster.name} is lifted off its feet, spun around by the cosmic disturbance, only to be slammed back down onto your waiting blade!")
                     crit_damage = roll_damage_value(character.weapon['damage'])
                     crit_damage += crit_damage
@@ -472,7 +488,7 @@ def player_turn_1v1(monster: Monster, character: Character):
                 else:
                     attack_roll += character.get_modifier(character.strength)
                     print(f"You swing your weapon at the {monster.name}...")
-                    time.sleep(2)
+                    time.sleep(3)
                     if attack_roll >= monster.armor_class:
                         print("It's a hit!")
                         damage = roll_damage_value(character.weapon['damage'])
@@ -484,7 +500,7 @@ def player_turn_1v1(monster: Monster, character: Character):
             elif character.role.lower() == 'wizard':
                 if attack_roll == 20:
                     print(f"You cast a spell at the {monster.name}...")
-                    time.sleep(2)
+                    time.sleep(3)
                     print(f"You roll a natural 20! Critical hit! Your spell engulfs the {monster.name} in a dazzling vortex of arcane energy, briefly phasing it out of reality. The {monster.name} reappears a second later, looking bewildered and smoking, as if it had been subjected to the heat death and rebirth of several universes in the blink of an eye!")
                     crit_damage = roll_damage_value(character.weapon['damage'])
                     crit_damage += crit_damage
@@ -492,7 +508,7 @@ def player_turn_1v1(monster: Monster, character: Character):
                 else:
                     attack_roll += character.get_modifier(character.intelligence)
                     print(f"You cast a spell at the {monster.name}...")
-                    time.sleep(2)
+                    time.sleep(3)
                     if attack_roll >= monster.armor_class:
                         print("It's a hit!")
                         damage = roll_damage_value(character.weapon['damage'])
@@ -586,7 +602,7 @@ def player_turn_1v1(monster: Monster, character: Character):
         
         elif choice == '4':
             print("Flee checks are based on the Dexterity modifier of the monster and the player.")
-            flee_check = roll_flee_check(monster, character)
+            flee_check = roll_flee_check(monster, character, flee_possibility)
             if flee_check == True:
                 return 'fled'
             else:
@@ -742,6 +758,12 @@ def main():
         # time.sleep(1)
 
         seperator()
+        print("What are your pronouns?")
+        while True:
+            pronoun_choice = input("Choices: 1. He/Him, 2. She/Her, 3. They/Them. Please input the number associated with your choice: ")
+            if pronoun_choice in ['1', '2', '3']:
+                break
+
         print("Now it is time to pick a name for your brave hero!")
         seperator()
         # time.sleep(1)
@@ -761,7 +783,7 @@ def main():
                 print("Please enter y or n")
 
 
-        player_character = Character(name=name_choice, role=class_choice, strength=player_starting_str, dexterity=player_starting_dex, constitution=player_starting_con, intelligence=player_starting_int, wisdom=player_starting_wis, charisma=player_starting_cha)
+        player_character = Character(name=name_choice, role=class_choice, pronouns=pronoun_choice, strength=player_starting_str, dexterity=player_starting_dex, constitution=player_starting_con, intelligence=player_starting_int, wisdom=player_starting_wis, charisma=player_starting_cha)
 
         seperator()
         # time.sleep(1)
@@ -817,10 +839,10 @@ def main():
                 # time.sleep(2)
 
                 while True:
-                    choice = input("Are you ready to roll this Dexterity check? You need a 10 or greater to pass. Please enter y or n: ")
+                    choice = input("Are you ready to roll this Dexterity check? You need a 10 or greater to pass. Please enter y when ready: ")
                     if choice == 'y':
                         break
-                    print("Please enter y or n")
+                    print("Please enter y when ready.")
 
                 seperator()
 
@@ -935,7 +957,7 @@ def main():
                 # time.sleep(2)
                 initiative = roll_1v1_initiative(first_dungeon_rat, player_character)
                 # time.sleep(2)
-                battle_result = combat_1v1(first_dungeon_rat, player_character, initiative)
+                battle_result = combat_1v1(first_dungeon_rat, player_character, initiative, True)
 
                 seperator()
                 time.sleep(2)
@@ -970,15 +992,206 @@ def main():
 
 
             elif starting_dungeon_first_choice =='left':
-                break
+                seperator()
+                print("You go left and walk down the dark corridor. The muffled voices become louder and you can just barely make out what they are saying...")
+                time.sleep(3)
+                print(f"Guard 1: Ohhhh you should have seen this crazy {player_character.role} last night at the White Goose Tavern! They were deep in their cups, prancing on tables and bellowing some bawdy tune as if they were a drunken bard.")
+                time.sleep(4)
+                seperator()
+                print("Guard 2: *laughs* By the gods, the state they were in last night! Half-dressed and declaring themselves ‘Champion of the White Goose,’ dancing atop the tables like they'd been crowned in a court of fools!")
+                seperator()
+                time.sleep(4)
+                print("Guard 1: And did you notice what they had on 'em? That odd piece... Looked like a carved gem with light swirling inside, as if a small universe were trapped within. Small, but 'twas heavy as a wet hog. And I swear, it whispered when I confiscated it from him.")
+                seperator()
+                time.sleep(4)
+                print("Guard 2: Aye, was a curious object. Luckily, it's safely locked away in the chest. *gestures to a chest sitting on the ground behind the guards*")
+                seperator()
+                time.sleep(3)
+
+                print("You think to yourself, 'hmmmm I must get my gem back, I still need to deliver it to the king...'")
+                while True:
+                    choice = input(f"what do you want to do? 1. Attack the guards, 2. Attempt to sneak by and steal back your gem, 3. Attempt to convince them into giving back your gem. Please choose the number associated with your choice: ")
+                    seperator()
+                    if choice == '1':
+                        player_character.evil_rating += 1
+                        if player_character.role == 'archer':
+                            print("You quietly knock an arrow, draw your bow and let it fly. It strikes the closer guard and he crumples to the floor.")
+                            print("The other guard screams in rage, looking around frantically. He spots you lurking and the shadows and charges, drawing his sword. 'YOU BASTARD!' he cries out...")
+                            seperator()
+                            break
+                        elif player_character.role == 'knight':
+                            print("You quietly draw your sword, and stealthily creep up to the closer guard. You shove your blade in his back, he crumples to the floor.")
+                            print("The other guard, who was deep in his goblet, sputters up meade as he sees his friend all of the sudden on the ground. He tosses his drink, drawing his sword. 'YOU BASTARD!' he shouts, as he charges you...")
+                            seperator()
+                            break
+                        elif player_character.role == 'wizard':
+                            print("You quietly raise your staff, and loose a potent magic dart. It strikes the closer guard and he crumples to the floor.")
+                            print("The other guard screams in rage, looking around frantically. He spots you lurking and the shadows and charges, drawing his sword. 'YOU BASTARD!' he cries out...")
+                            seperator()
+                            break
+                        else:
+                            print("Unknown Class")
+
+                    elif choice == '2':
+                        print("You attempt to sneak around the edge of the room in the shadows, but immediately knock into some iron armor strewn on the floor. 'Shit...' you mutter under your breath, but it's too late, the guards spot you...")
+                        time.sleep(4)
+                        print(f"Guard 1: Oi! It's {player_character.name} the {player_character.role} from last night! What're ya doing out your cell?! Come here...")
+                        break
+
+                    elif choice == '3':
+                        print("---For some options, you will roll a Charisma (CHA) check, based on your Charisma modifier---")
+                        time.sleep(3)
+                        print("---In this instance, you will gain an additional modifier depending on your answer to the earlier puke option, when you first awoke in your cell---")
+                        time.sleep(4)
+                        print("---You must beat a 12 to succeed on this check (note that this threshold for success will not always be displayed)---")
+                        time.sleep(3)
+
+                        while True:
+                            cha_check_choice = input("Are you ready to roll the Charisma check? Please enter y when ready: ")
+                            if cha_check_choice == 'y':
+                                break
+                            print("Please enter y when ready.")
+
+                        if puke_choice =='y':
+                            cha_check = roll_stat_check_d20(player_character, 12, 'charisma', 2)
+                        elif puke_choice =='n':
+                            cha_check = roll_stat_check_d20(player_character, 12, 'charisma', -2)
+                        else:
+                            cha_check = roll_stat_check_d20(player_character, 12, 'charisma', 0)
+
+                        if cha_check == True:
+                            player_character.good_rating += 1
+                            print("You brush off the stone dust on your clothes, stand up straight and walk into the light.")
+                            time.sleep(3)
+                            print("You say with confidence, 'Ahhh my good fellows, Olgur just let me out, I've come to collect my personal belongings and be on my merry way!'")
+                            time.sleep(3)
+                            print(f"Guard 1: Ayee, that time already? Gloevar, grab {player_character.name}'s belongs out the chest behind ye. {player_character.name}, maybe lay off the meade next time. Trot on now.")
+                            time.sleep(3)
+                            print("Gloevar hands you your belongings, including your gem.")
+                            time.sleep(3)
+                            print("You do a slight bow and walk briskly to the door on the other side of the room.")
+                            time.sleep(2)
+                            print(f"As you put your hand on door handle, you hear a yell from near where you came from, 'Oi!! Stop that {player_character.role}! They stole my keys!!'")
+                            time.sleep(3)
+                            print("Before you are able to slip out the door, you feel a rough hand grab your collar and whip you around. 'Think we're stupid or something?!' Gloevar says mockingly...")
+                            break
+
+                        else:
+                            print("You brush off the stone dust on your clothes, stand up straight and walk into the light.")
+                            time.sleep(3)
+                            print("You say with confidence, 'Ahhh my good fellows, Olgur just let me out, I've come to collect my personal belongings and be on my merry way!'")
+                            time.sleep(3)
+                            print(f"Guard 1: 'Oi! {player_character.name}, you shouldn't be out yer cell yet! Get over here...'")
+                            break
+
+                            
+                    else:
+                        print("Please input 1, 2 or 3.")
+
+                seperator()
+                print("---It's time for your first battle!---")
+                time.sleep(3)
+                print("---If you die in battle, you will have to restart the entire game! Be careful!---")
+                time.sleep(3)
+                print("---You and the rat will take turns doing actions. In a turn you can either decide to Attack, Use a Special Ability, Use an Item, or (in some cases) Attempt to Flee (DEX check)---")
+                time.sleep(3)
+                print("---if you attack, you will roll a d20, applying your class's respective modifier (DEX for Archer, STR for Knight, INT for Wizard) against the enemy's Armor Class (AC)---")
+                time.sleep(3)
+                print("---If your attack roll is successful, you will do damage based on your weapon (default damage with no weapon is 1d4 + 1)---")
+                time.sleep(3)
+                print("---It will then be the enemy's turn. Most monsters will just attack, but some higher level monsters may take other actions---")
+                seperator()
+                time.sleep(3)
+
+                # generating guard's monster class
+                first_dungeon_guard_loot = random.randint(5, 20)
+                first_dungeon_guard_chance_of_nothing = random.randint(10, 25)
+
+                while True:
+                    choice = input("Are you ready to fight the Guard? Please enter y when ready: ")
+                    if choice == 'y':
+                        break
+                    print("Please enter y when ready.")
+
+                time.sleep(2)
+
+                if choice == '1':
+                    first_dungeon_enraged_guard = Monster('Enraged Guard', '1d4 + 1', 'Human', {'gold_coins': first_dungeon_guard_loot, 'chance_of_nothing': first_dungeon_guard_chance_of_nothing}, 8, 4, 8, 1, 1, 1)
+                    print("First, initiative will be rolled for both you and your opponent. Your Dexterity modifier is applied to this roll. The one with the highest roll will go first.")
+                    time.sleep(2)
+                    initiative = roll_1v1_initiative(first_dungeon_enraged_guard, player_character)
+                    time.sleep(2)
+                    battle_result = combat_1v1(first_dungeon_enraged_guard, player_character, initiative, False)
+
+                    if battle_result == 'player_win':
+                        loot_roll = random.randint(1, 100)
+                        if loot_roll in range(1, first_dungeon_enraged_guard.loot_drops['chance_of_nothing'] + 1):
+                            print(f"You slay the {first_dungeon_enraged_guard.name}! You look around the corpse, but unfortunately find no loot worth keeping...")
+                            time.sleep(3)
+                            print(f"---Here is your inventory---")
+                            print(player_character.inventory)
+                            seperator()
+                            break
+                        else:
+                            print(f"You slay the {first_dungeon_enraged_guard.name}! Your loot the body and find {first_dungeon_enraged_guard.loot_drops['gold_coins']} Gold Coins! You put the gold in your pocket.")
+                            player_character.inventory["gold_coins"] += first_dungeon_enraged_guard.loot_drops["gold_coins"]
+                            time.sleep(3)
+                            print("You defeat the first guard so handedly, that the other guard drops his weapon, shaking. As he flees, you can see a wet spot forming in his pants...")
+                            time.sleep(3)
+                            print(f"---Here is your inventory---")
+                            print(player_character.inventory)
+                            seperator()
+                            break
+
+                    elif battle_result == 'monster_win':
+                        death_status = True
+                        print("---You have died. GAME OVER---")
+                        break
+                else:
+                    first_dungeon_guard = Monster('Enraged Guard', '1d4 + 1', 'Human', {'gold_coins': first_dungeon_guard_loot, 'chance_of_nothing': first_dungeon_guard_chance_of_nothing}, 6, 3, 6, 1, 1, 1)
+                    print("First, initiative will be rolled for both you and your opponent. Your Dexterity modifier is applied to this roll. The one with the highest roll will go first.")
+                    time.sleep(2)
+                    initiative = roll_1v1_initiative(first_dungeon_guard, player_character)
+                    time.sleep(2)
+                    battle_result = combat_1v1(first_dungeon_guard, player_character, initiative, False)
+
+                    if battle_result == 'player_win':
+                        loot_roll = random.randint(1, 100)
+                        if loot_roll in range(1, first_dungeon_guard.loot_drops['chance_of_nothing'] + 1):
+                            print(f"You slay the {first_dungeon_guard.name}! You look around the corpse, but unfortunately find no loot worth keeping...")
+                            time.sleep(3)
+                            print("You defeat the first guard so handedly, that the other guard drops his weapon, shaking. As he flees, you can see a wet spot forming in his pants...")
+                            time.sleep(3)
+                            print(f"---Here is your inventory---")
+                            print(player_character.inventory)
+                            seperator()
+                            break
+                        else:
+                            print(f"You slay the {first_dungeon_guard.name}! Your loot the body and find {first_dungeon_guard.loot_drops['gold_coins']} Gold Coins! You put the gold in your pocket.")
+                            player_character.inventory["gold_coins"] += first_dungeon_guard.loot_drops["gold_coins"]
+                            time.sleep(3)
+                            print(f"---Here is your inventory---")
+                            print(player_character.inventory)
+                            seperator()
+                            break
+
+                    elif battle_result == 'monster_win':
+                        death_status = True
+                        print("---You have died. GAME OVER---")
+                        break
+
+                seperator()
+                time.sleep(2)
 
             else:
                 print("Please enter left or right.")
                 seperator()
 
+        if death_status == True:
+            break
 
         time.sleep(2)
-        print("You stumble out of the room, beat up and bruised. You think to yourself, maybe I shouldn't be picking fights while this hungover...")
+        print("You walk out of the room, a bit bruised and hungover still, but alive. You think to yourself, maybe I shouldn't be picking fights in this state...")
 
 
         print("End of Beta Test")

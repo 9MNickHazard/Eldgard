@@ -9,6 +9,21 @@ from character_and_monsters import Character, Monster
 # COMBAT MECHANICS
 ######################################
 
+def initiate_combat(player: Character, monster: Monster, can_flee: bool) -> str:
+    while True:
+        choice = input(f"Are you ready to fight the {monster}? Please enter y when ready: ")
+        if choice == 'y':
+            break
+        print("Please enter y when ready.")
+        
+    print("First, initiative will be rolled for both you and your opponent.")
+    time.sleep(2)
+    initiative = roll_1v1_initiative(monster, player)
+    battle_result = combat_1v1(monster, player, initiative, can_flee)
+    return battle_result
+
+######################################
+
 def combat_1v1(monster: Monster, character: Character, initiative: str, flee_possibility: bool) -> str:
     seperator()
     print(f"---BATTLE START!---")
@@ -399,7 +414,32 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
 
 ######################################
 
+def roll_loot(monster: Monster, character: Character, battle_result: str):
+    if battle_result == 'player_win':
+        roll = random.randint(1, 100)
+        if roll in range(1, monster.loot_drops['chance_of_nothing'] + 1):
+            printwait(f"You slay the {monster.name}! You look around the corpse, but unfortunately find no loot worth keeping...", 3)
+            print(f"---Here is your inventory---")
+            print(character.inventory)
+            seperator()
+            return 'no_loot'
+        else:
+            printwait(f"You slay the {monster.name}! You loot the body and find {monster.loot_drops['gold_coins']} Gold Coins! You put the gold in your pocket.", 3)
+            character.inventory["gold_coins"] += monster.loot_drops["gold_coins"]
+            print(f"---Here is your inventory---")
+            print(character.inventory)
+            seperator()
+            return 'yes_loot'
 
+    elif battle_result == 'monster_win':
+        print("---You have died. GAME OVER---")
+        return 'death'
+
+    elif battle_result == 'fled':
+        return 'fled'
+    
+    else:
+        printwait("battle_result error", 2)
 
 
 ######################################
@@ -448,10 +488,10 @@ def roll_stat_check_d20(character: Character, target: int, stat: str, additional
     check += additional_modifier
 
     if check >= target:
-        print(f"Your total roll of {check} succeded! You passed the {stat} check!")
+        print(f"Your total roll of {check} succeded! You passed the {stat.capitalize()} check!")
         return True
     else:
-        print(f"Your total roll of {check} was a failure... You failed the {stat} check...")
+        print(f"Your total roll of {check} was a failure... You failed the {stat.capitalize()} check...")
         return False
     
 ######################################
@@ -480,3 +520,36 @@ def get_modifier_value(stat):
             return f"+{modifier}" if modifier > 0 else str(modifier)
         
 ######################################
+
+def printwait(what_to_print: str, wait_time: int):
+    print(what_to_print)
+    time.sleep(wait_time)
+
+######################################
+
+def perform_stat_check(character: Character, target: int, stat: str, modifier: int, number_of_attempts: int) -> bool:
+    while True:
+        choice = input(f"Are you ready to roll the {stat.capitalize()} check? (y/n): ").lower()
+        if choice == 'y':
+            break
+        else:
+            print("Please enter y when ready.")
+
+    tries = 0        
+    while tries < number_of_attempts:
+        result = roll_stat_check_d20(character, target, stat, modifier)
+        time.sleep(3)
+        if result:
+            return True
+        
+        tries += 1
+
+        while True:
+            choice = input("Try again? Enter y when ready: ")
+            if choice == 'y':
+                break
+            print("Please enter y when ready.")
+
+        printwait(f"Rerolling... (Attempt {tries + 1} of {number_of_attempts})", 2)
+
+    return False

@@ -54,6 +54,21 @@ class Character:
         self.hit_points = 10 + self.get_modifier(self.constitution)
         self.armor_class = 10 + self.get_modifier(self.dexterity)
 
+        # special abilities, first value in each value's list is how many times the Special Ability has been used in the combat (when assigning this to a value 
+        # inside player_turn_1v1), second value is the abilities' level and should not be changed inside the combat function.
+        # third value is the number of times it can be used in a single battle.
+        self.special_abilities_dictionary = {
+            'blinding shot': [0, 1, 1],
+            'armor piercing arrow': [0, 1, 1],
+            'nimble steps': [0, 1, 1],
+            'heavy armor': [0, 1, 1],
+            'resilience': [0, 1, 1],
+            'big swing': [0, 1, 1],
+            'spellcasting': [0, 1, 1],
+            'magic shield': [0, 1, 1],
+            'polymorph': [0, 1, 1],
+        }
+
 
     archer_special_abilities = ['Blinding Shot', 'Armor Piercing Arrow', 'Nimble Steps']
     knight_special_abilities = ['Heavy Armor', 'Resilience', 'Big Swing']
@@ -145,6 +160,8 @@ class Character:
         'potions': {'small_health_potion': 0, 'small_attack_potion': 0, 'small_defense_potion': 0},
         'weapons': {}
     }
+
+    
 
 ######################################
 

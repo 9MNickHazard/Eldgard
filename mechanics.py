@@ -11,13 +11,12 @@ from character_and_monsters import Character, Monster
 
 def initiate_combat(player: Character, monster: Monster, can_flee: bool) -> str:
     while True:
-        choice = input(f"Are you ready to fight the {monster}? Please enter y when ready: ")
+        choice = input(f"Are you ready to fight the {monster.name}? Please enter y when ready: ")
         if choice == 'y':
             break
         print("Please enter y when ready.")
         
-    print("First, initiative will be rolled for both you and your opponent.")
-    time.sleep(2)
+    printwait("First, initiative will be rolled for both you and your opponent.", 2)
     initiative = roll_1v1_initiative(monster, player)
     battle_result = combat_1v1(monster, player, initiative, can_flee)
     return battle_result
@@ -33,13 +32,13 @@ def parse_monster_effect(monster_effect: str) -> list:
 ######################################
 
 def combat_1v1(monster: Monster, character: Character, initiative: str, flee_possibility: bool) -> str:
+    effect_duration = 0
+    monster_effect = False
     character_abilities = character.special_abilities_dictionary
     seperator()
-    print(f"---BATTLE START!---")
-    # time.sleep(1)
-    print(f"{character.name} vs {monster.name}")
+    printwait(f"---BATTLE START!---", 1)
+    printwait(f"{character.name} vs {monster.name}", 1)
     seperator()
-    # time.sleep(1)
 
     monster_hp = monster.hit_points
     character_hp = character.hit_points
@@ -50,18 +49,19 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             print("---Your Turn---")
             player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
 
-            if isinstance(player_turn_result, tuple):
-                player_turn_result = player_turn_result[0]
-                monster_effect = player_turn_result[1]
-                effect_duration = player_turn_result[2]
-                monster_effect = parse_monster_effect(monster_effect)
-            
-            if isinstance(player_turn_result, int):
-                monster_hp -= player_turn_result
-            elif player_turn_result == 'fled':
+            if player_turn_result == 'fled':
                 return 'fled'
             elif player_turn_result == 'trapped':
                 print("The battle continues...")
+            elif isinstance(player_turn_result, (int, float)):
+                monster_hp -= player_turn_result
+            elif isinstance(player_turn_result, tuple):
+                if len(player_turn_result) >= 1:
+                    monster_hp -= player_turn_result[0]
+                if len(player_turn_result) >= 2:
+                    monster_effect = parse_monster_effect(player_turn_result[1])
+                if len(player_turn_result) >= 3:
+                    effect_duration = player_turn_result[2]
             else:
                 print(f"Unknown Action: {player_turn_result}")
 
@@ -121,18 +121,19 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             print("---Your Turn---")
             player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
 
-            if isinstance(player_turn_result, tuple):
-                player_turn_result = player_turn_result[0]
-                monster_effect = player_turn_result[1]
-                effect_duration = player_turn_result[2]
-                monster_effect = parse_monster_effect(monster_effect)
-
-            if isinstance(player_turn_result, int):
-                monster_hp -= player_turn_result
-            elif player_turn_result == 'fled':
+            if player_turn_result == 'fled':
                 return 'fled'
             elif player_turn_result == 'trapped':
                 print("The battle continues...")
+            elif isinstance(player_turn_result, (int, float)):
+                monster_hp -= player_turn_result
+            elif isinstance(player_turn_result, tuple):
+                if len(player_turn_result) >= 1:
+                    monster_hp -= player_turn_result[0]
+                if len(player_turn_result) >= 2:
+                    monster_effect = parse_monster_effect(player_turn_result[1])
+                if len(player_turn_result) >= 3:
+                    effect_duration = player_turn_result[2]
             else:
                 print(f"Unknown Action: {player_turn_result}")
 
@@ -168,16 +169,12 @@ def roll_1v1_initiative(monster: Monster, character: Character) -> str:
             character_initiative = 0
 
         seperator()
-        print(f"Rolling {monster.name}'s initiative...")
-        # time.sleep(1)
-        print(f"{monster.name} rolled a {monster_initiative}")
+        printwait(f"Rolling {monster.name}'s initiative...", 1)
+        printwait(f"{monster.name} rolled a {monster_initiative}", 1)
         seperator()
-        # time.sleep(2)
-        print(f"Rolling {character.name}'s initiative...")
-        # time.sleep(1)
-        print(f"{character.name} rolled a {character_initiative}")
+        printwait(f"Rolling {character.name}'s initiative...", 1)
+        printwait(f"{character.name} rolled a {character_initiative}", 1)
         seperator()
-        # time.sleep(2)
 
         if character_initiative > monster_initiative:
             print(f"Congrats! {character.name} gets to go first!")
@@ -186,28 +183,23 @@ def roll_1v1_initiative(monster: Monster, character: Character) -> str:
             print(f"Unlucky... {monster.name} gets to go first.")
             return 'monster'
         else:
-            print("It's a tie! Rerolling...")
-            # time.sleep(2)
+            printwait("It's a tie! Rerolling...", 2)
 
 ######################################
 
-def roll_flee_check(monster: Monster, character: Character, is_fleeing_possible: bool) -> bool:
-    if is_fleeing_possible:
+def roll_flee_check(monster: Monster, character: Character) -> bool:
+        printwait("Flee checks are based on the Dexterity modifier of the monster and the player.", 1)
         monster_flee_check = random.randint(1, 20)
         monster_flee_check += monster.get_modifier(monster.dexterity)
         character_flee_check = random.randint(1, 20)
         character_flee_check += character.get_modifier(character.dexterity)
         seperator()
-        print(f"Rolling {monster.name}'s flee check...")
-        # time.sleep(1)
-        print(f"{monster.name} rolled a {monster_flee_check}")
+        printwait(f"Rolling {monster.name}'s flee check...", 1)
+        printwait(f"{monster.name} rolled a {monster_flee_check}", 2)
         seperator()
-        # time.sleep(2)
-        print(f"Rolling {character.name}'s flee check...")
-        # time.sleep(1)
-        print(f"{character.name} rolled a {character_flee_check}")
+        printwait(f"Rolling {character.name}'s flee check...", 1)
+        printwait(f"{character.name} rolled a {character_flee_check}", 2)
         seperator()
-        # time.sleep(2)
 
         if character_flee_check > monster_flee_check:
             print(f"You succesfully slip away from the {monster.name}.")
@@ -216,13 +208,8 @@ def roll_flee_check(monster: Monster, character: Character, is_fleeing_possible:
             print(f"Unlucky... The {monster.name} prevents you from escaping.")
             return False
         else:
-            print("It's a tie! Rerolling...")
-            # time.sleep(2)
+            printwait("It's a tie! Rerolling...", 2)
             roll_1v1_initiative(monster, character)
-
-    else:
-        print("You cannot run from this battle.")
-        return False
 
 ######################################
 
@@ -267,6 +254,8 @@ def monster_turn_1v1(monster: Monster, character: Character, monster_effect) -> 
         if monster_effect[1] == 'attack_roll':
             monster_attack_roll = random.randint(1, 20)
             monster_attack_roll += monster_effect[0]
+        else:
+            monster_attack_roll = random.randint(1, 20)
     else:
         monster_attack_roll = random.randint(1, 20)
     # time.sleep(3)
@@ -349,6 +338,7 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                 return damage
             else:
                 print(f"Unknown Class: {character.role}")
+                continue
 
             
         elif choice == '2':
@@ -361,21 +351,21 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                 if spec_ability == 'blinding shot':
                     print("Special Abilities not yet implemented...")
                     seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                    continue
                 elif spec_ability == 'armor piercing arrow':
                     print("Special Abilities not yet implemented...")
                     seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                    continue
                 elif spec_ability == 'nimble steps':
                     print("You cannot use that ability in battle...")
                     seperator()
                     print("Please choose a valid option for your turn.")
                     seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                    continue
                 else:
                     print("Unknown Special Ability")
             
-            if character.role.lower() == 'knight':
+            elif character.role.lower() == 'knight':
                 while True:
                     spec_ability = input(f"Please enter one of your character's special abilities ({Character.knight_special_abilities[0]}, {Character.knight_special_abilities[1]}, {Character.knight_special_abilities[2]}): ").lower()
                     if spec_ability in [Character.knight_special_abilities[0].lower(), Character.knight_special_abilities[1].lower(), Character.knight_special_abilities[2].lower()]:
@@ -386,26 +376,27 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                     seperator()
                     print("Please choose a valid option for your turn.")
                     seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                    continue
                 elif spec_ability == 'resilience':
                     print("Special Abilities not yet implemented...")
                     seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                    continue
                 elif spec_ability == 'big swing':
                     # checking if the SA's number of uses are used up for this combat
                     if character_abilities['big swing'][0] < character_abilities['big swing'][2]:
-                        printwait(f"You wind up and swing your {character.weapon['name']} as hard as you can muster...", 3)
+                        printwait(f"You wind up and swing your weapon as hard as you can muster...", 3)
                         character_abilities['big swing'][0] += 1
                         damage = player_attack(monster, character, 2)
-                        return damage, '3 attack_roll 1', 1
-
-
-                    seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                        return (damage, '3 attack_roll', 1)
+                    else:
+                        printwait("You have run out of uses of that ability in this combat.", 1)
+                        seperator()
+                        continue
                 else:
                     print("Unknown Special Ability")
+                    continue
 
-            if character.role.lower() == 'wizard':
+            elif character.role.lower() == 'wizard':
                 while True:
                     spec_ability = input(f"Please enter one of your character's special abilities ({Character.wizard_special_abilities[0]}, {Character.wizard_special_abilities[1]}, {Character.wizard_special_abilities[2]}): ").lower()
                     if spec_ability in [Character.wizard_special_abilities[0].lower(), Character.wizard_special_abilities[1].lower(), Character.wizard_special_abilities[2].lower()]:
@@ -414,17 +405,18 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                 if spec_ability == 'spellcasting':
                     print("Special Abilities not yet implemented...")
                     seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                    continue
                 elif spec_ability == 'magic shield':
                     print("Special Abilities not yet implemented...")
                     seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                    continue
                 elif spec_ability == 'polymorph':
                     print("Special Abilities not yet implemented...")
                     seperator()
-                    player_turn_1v1(monster, character, flee_possibility, character_abilities)
+                    continue
                 else:
                     print("Unknown Special Ability")
+                    continue
 
             else:
                 print(f"Unknown Class: {character.role}")
@@ -435,11 +427,13 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
             # time.sleep(1)
             print("Use Item not yet implemented...")
             seperator()
-            player_turn_1v1(monster, character, flee_possibility, character_abilities)
+            continue
         
         elif choice == '4':
-            print("Flee checks are based on the Dexterity modifier of the monster and the player.")
-            flee_check = roll_flee_check(monster, character, flee_possibility)
+            if not flee_possibility:
+                print("You cannot run from this battle.")
+                continue
+            flee_check = roll_flee_check(monster, character)
             if flee_check == True:
                 return 'fled'
             else:
@@ -483,20 +477,15 @@ def roll_loot(monster: Monster, character: Character, battle_result: str):
 ######################################
 
 def roll_stat(stat) -> int:
-    print(f"Rolling your {stat}...")
-    # time.sleep(1)
+    printwait(f"Rolling your {stat}...", 1)
     stat1 = random.randint(1, 6)
-    print(f"Your first d6 roll is {stat1}")
-    # time.sleep(1)
+    printwait(f"Your first d6 roll is {stat1}", 1)
     stat2 = random.randint(1, 6)
-    print(f"Your second d6 roll is {stat2}")
-    # time.sleep(1)
+    printwait(f"Your second d6 roll is {stat2}", 1)
     stat3 = random.randint(1, 6)
-    print(f"Your third d6 roll is {stat3}")
-    # time.sleep(1)
+    printwait(f"Your third d6 roll is {stat3}", 1)
     stat4 = random.randint(1, 6)
-    print(f"Your fourth d6 roll is {stat4}")
-    # time.sleep(1)
+    printwait(f"Your fourth d6 roll is {stat4}", 1)
 
     rolls = [stat1, stat2, stat3, stat4]
     lowest_stat_roll = min(rolls)
@@ -559,7 +548,7 @@ def get_modifier_value(stat):
 
 def printwait(what_to_print: str, wait_time: int):
     print(what_to_print)
-    time.sleep(wait_time)
+    # time.sleep(wait_time)
 
 ######################################
 
@@ -574,7 +563,8 @@ def perform_stat_check(character: Character, target: int, stat: str, modifier: i
     tries = 0        
     while tries < number_of_attempts:
         result = roll_stat_check_d20(character, target, stat, modifier)
-        time.sleep(3)
+        # time.sleep(1.5)
+        seperator()
         if result:
             return True
         

@@ -185,6 +185,7 @@ def intro_and_char_creation():
 
 
 def first_dungeon_jail(character: Character):
+    death_status = False
     printwait("The Adventure Begins...", 2)
     printwait("...", 2)
     printwait("...", 2)

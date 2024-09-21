@@ -23,8 +23,8 @@ def initiate_combat(player: Character, monster: Monster, can_flee: bool) -> str:
 
 ######################################
 
-def parse_monster_effect(monster_effect: str) -> list:
-    parsed = monster_effect.split()
+def parse_effect(effect: str) -> list:
+    parsed = effect.split()
     parsed[0] = int(parsed[0])
     # parsed[2] = int(parsed[2])
     return parsed
@@ -32,8 +32,10 @@ def parse_monster_effect(monster_effect: str) -> list:
 ######################################
 
 def combat_1v1(monster: Monster, character: Character, initiative: str, flee_possibility: bool) -> str:
-    effect_duration = 0
+    monster_effect_duration = 0
     monster_effect = False
+    self_shield_duration = 0
+    self_shield = False
     character_abilities = character.special_abilities_dictionary
     seperator()
     printwait(f"---BATTLE START!---", 1)
@@ -44,26 +46,48 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
     character_hp = character.hit_points
 
     if initiative == 'character':
-        effect_duration_counter = 0
+        self_shield_duration_counter = 0
+        monster_effect_duration_counter = 0
         while monster_hp > 0 and character_hp > 0:
             print("---Your Turn---")
             player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
 
-            if player_turn_result == 'fled':
+            if player_turn_result == 'heal 3':
+                character_hp += 3
+                if character_hp > character.hit_points:
+                    character_hp = character.hit_points
+                printwait("You heal 3 hitpoints", 2)
+            elif player_turn_result == 'heal 6':
+                character_hp += 6
+                if character_hp > character.hit_points:
+                    character_hp = character.hit_points
+                printwait("You heal 6 hitpoints", 2)
+            elif player_turn_result == 'heal 10':
+                character_hp += 10
+                if character_hp > character.hit_points:
+                    character_hp = character.hit_points
+                printwait("You heal 10 hitpoints", 2)
+            elif player_turn_result == 'fled':
                 return 'fled'
             elif player_turn_result == 'trapped':
                 print("The battle continues...")
             elif isinstance(player_turn_result, (int, float)):
                 monster_hp -= player_turn_result
             elif isinstance(player_turn_result, tuple):
-                if len(player_turn_result) >= 1:
-                    monster_hp -= player_turn_result[0]
-                if len(player_turn_result) >= 2:
-                    monster_effect = parse_monster_effect(player_turn_result[1])
-                if len(player_turn_result) >= 3:
-                    effect_duration = player_turn_result[2]
+                if isinstance(player_turn_result[0], (int, float)):
+                    if len(player_turn_result) >= 1:
+                        monster_hp -= player_turn_result[0]
+                    if len(player_turn_result) >= 2:
+                        monster_effect = parse_effect(player_turn_result[1])
+                    if len(player_turn_result) >= 3:
+                        monster_effect_duration = player_turn_result[2]
+                elif player_turn_result[0] == 'self shield':
+                    self_shield = player_turn_result[1]
+                    self_shield_duration = player_turn_result[2]
+
             else:
                 print(f"Unknown Action: {player_turn_result}")
+
 
             if monster_hp <= 0:
                 break
@@ -76,13 +100,38 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             # time.sleep(2)
             ################################################################################ working here
             monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+
+            if self_shield:
+                shield_result = self_shield - monster_turn_result
+                if shield_result <= 0:
+                    printwait(f"Your shield absorbed {self_shield} damage.\nShield depleted...", 2)
+                    self_shield = 0
+                    monster_turn_result = abs(shield_result)
+                else:
+                    self_shield = shield_result
+                    printwait(f"Your shield absorbed {monster_turn_result} damage.\nDamage absorption remaining: {self_shield}\nShield duration remaining: {self_shield_duration - self_shield_duration_counter - 1} Turn(s)", 2)
+                    monster_turn_result = 0
+                
             character_hp -= monster_turn_result 
 
             if monster_effect:
-                effect_duration_counter += 1
+                monster_effect_duration_counter += 1
 
-            if effect_duration_counter == effect_duration:
+            if monster_effect_duration_counter == monster_effect_duration:
                 monster_effect = False
+                monster_effect_duration_counter = 0
+
+            if self_shield:
+                self_shield_duration_counter += 1
+
+            if self_shield_duration_counter == self_shield_duration:
+                self_shield = False
+                self_shield_duration_counter = 0
+                printwait("Your shield's duration runs out... You're vulnerable again.", 1)
+
+            if self_shield <= 0:
+                self_shield = False
+                self_shield_duration_counter = 0
 
             # time.sleep(2)
             seperator()
@@ -97,16 +146,41 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             return 'monster_win'
 
     elif initiative == 'monster':
-        effect_duration_counter = 0
+        monster_effect_duration_counter = 0
+        self_shield_duration_counter = 0
         while monster_hp > 0 and character_hp > 0:
             monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+
+            if self_shield:
+                shield_result = self_shield - monster_turn_result
+                if shield_result <= 0:
+                    printwait(f"Your shield absorbed {self_shield} damage.\nShield depleted...", 2)
+                    self_shield = 0
+                    monster_turn_result = abs(shield_result)
+                else:
+                    self_shield = shield_result
+                    printwait(f"Your shield absorbed {monster_turn_result} damage.\nDamage absorption remaining: {self_shield}\nShield duration remaining: {self_shield_duration - self_shield_duration_counter - 1} Turn(s)", 2)
+                    monster_turn_result = 0
+
             character_hp -= monster_turn_result 
 
             if monster_effect:
-                effect_duration_counter += 1
+                monster_effect_duration_counter += 1
 
-            if effect_duration_counter == effect_duration:
+            if monster_effect_duration_counter == monster_effect_duration:
                 monster_effect = False
+                monster_effect_duration_counter = 0
+
+            if self_shield:
+                self_shield_duration_counter += 1
+
+            if self_shield_duration_counter == self_shield_duration:
+                self_shield = False
+                self_shield_duration_counter = 0
+
+            if self_shield <= 0:
+                self_shield = False
+                self_shield_duration_counter = 0
 
             if character_hp <= 0:
                 break
@@ -121,19 +195,38 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             print("---Your Turn---")
             player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
 
-            if player_turn_result == 'fled':
+            if player_turn_result == 'heal 3':
+                character_hp += 3
+                if character_hp > character.hit_points:
+                    character_hp = character.hit_points
+                printwait("You heal 3 hitpoints", 2)
+            elif player_turn_result == 'heal 6':
+                character_hp += 6
+                if character_hp > character.hit_points:
+                    character_hp = character.hit_points
+                printwait("You heal 6 hitpoints", 2)
+            elif player_turn_result == 'heal 10':
+                character_hp += 10
+                if character_hp > character.hit_points:
+                    character_hp = character.hit_points
+                printwait("You heal 10 hitpoints", 2)
+            elif player_turn_result == 'fled':
                 return 'fled'
             elif player_turn_result == 'trapped':
                 print("The battle continues...")
             elif isinstance(player_turn_result, (int, float)):
                 monster_hp -= player_turn_result
             elif isinstance(player_turn_result, tuple):
-                if len(player_turn_result) >= 1:
-                    monster_hp -= player_turn_result[0]
-                if len(player_turn_result) >= 2:
-                    monster_effect = parse_monster_effect(player_turn_result[1])
-                if len(player_turn_result) >= 3:
-                    effect_duration = player_turn_result[2]
+                if isinstance(player_turn_result[0], (int, float)):
+                    if len(player_turn_result) >= 1:
+                        monster_hp -= player_turn_result[0]
+                    if len(player_turn_result) >= 2:
+                        monster_effect = parse_effect(player_turn_result[1])
+                    if len(player_turn_result) >= 3:
+                        monster_effect_duration = player_turn_result[2]
+                elif player_turn_result[0] == 'self shield':
+                    self_shield = player_turn_result[1]
+                    self_shield_duration = player_turn_result[2]
             else:
                 print(f"Unknown Action: {player_turn_result}")
 
@@ -283,17 +376,20 @@ def monster_turn_1v1(monster: Monster, character: Character, monster_effect) -> 
 
 ######################################
 
-def player_attack(monster: Monster, character: Character, damage_multiplier: int | float = 1, additional_damage: int = 0, additional_attack_roll: int = 0):
+def player_attack(monster: Monster, character: Character, damage_multiplier: int | float = 1, additional_damage: int = 0, additional_attack_roll: int = 0, custom_print: bool = False):
     attack_roll = random.randint(1, 20)
     if attack_roll == 20:
         if character.role.lower() == 'archer':
-            printwait(f"You fire a projectile at the {monster.name}...", 3)
+            if not custom_print:
+                printwait(f"You fire a projectile at the {monster.name}...", 3)
             print(f"You roll a natural 20! Critical hit! Your arrow hits the {monster.name} going straight through it, rips a hole in spacetime, travels through a wormhole in the 5th dimension and plunges itself again deep within the shocked {monster.name}!")
         elif character.role.lower() == 'knight':
-            printwait(f"You swing your weapon at the {monster.name}...", 3)
+            if not custom_print:
+                printwait(f"You swing your weapon at the {monster.name}...", 3)
             print(f"You roll a natural 20! Critical hit! Your weapon strikes the {monster.name} with such tremendous force that it creates gravitons, temporarily altering gravity. The {monster.name} is lifted off its feet, spun around by the cosmic disturbance, only to be slammed back down onto your waiting blade!")
         else:
-            printwait(f"You cast a spell at the {monster.name}...", 3)
+            if not custom_print:
+                printwait(f"You cast a spell at the {monster.name}...", 3)
             print(f"You roll a natural 20! Critical hit! Your spell engulfs the {monster.name} in a dazzling vortex of arcane energy, briefly phasing it out of reality. The {monster.name} reappears a second later, looking bewildered and smoking, as if it had been subjected to the heat death and rebirth of several universes in the blink of an eye!")
         crit_damage = roll_damage_value(character.weapon['damage'])
         crit_damage += crit_damage
@@ -305,11 +401,14 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
         attack_roll += character.get_modifier(character.dexterity)
         attack_roll += additional_attack_roll
         if character.role.lower() == 'archer':
-            printwait(f"You fire a projectile at the {monster.name}...", 3)
+            if not custom_print:
+                printwait(f"You fire a projectile at the {monster.name}...", 3)
         elif character.role.lower() == 'knight':
-            printwait(f"You swing your weapon at the {monster.name}...", 3)
+            if not custom_print:
+                printwait(f"You swing your weapon at the {monster.name}...", 3)
         else:
-            printwait(f"You cast a spell at the {monster.name}...", 3)
+            if not custom_print:
+                printwait(f"You cast a spell at the {monster.name}...", 3)
         
         if attack_roll >= monster.armor_class:
             print("It's a hit!")
@@ -344,19 +443,19 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
         elif choice == '2':
             if character.role.lower() == 'archer':
                 while True:
-                    spec_ability = input(f"Please enter one of your character's special abilities ({Character.archer_special_abilities[0]}, {Character.archer_special_abilities[1]}, {Character.archer_special_abilities[2]}): ").lower()
-                    if spec_ability in [Character.archer_special_abilities[0].lower(), Character.archer_special_abilities[1].lower(), Character.archer_special_abilities[2].lower()]:
+                    spec_ability = input(f"Please enter one of your character's special abilities (1. {Character.archer_special_abilities[0]}, 2. {Character.archer_special_abilities[1]}, 3. {Character.archer_special_abilities[2]}): ").lower()
+                    if spec_ability in ['1', '2', '3']:
                         break
                     print("Please enter a valid response.")
-                if spec_ability == 'blinding shot':
+                if spec_ability == '1':
                     print("Special Abilities not yet implemented...")
                     seperator()
                     continue
-                elif spec_ability == 'armor piercing arrow':
+                elif spec_ability == '2':
                     print("Special Abilities not yet implemented...")
                     seperator()
                     continue
-                elif spec_ability == 'nimble steps':
+                elif spec_ability == '3':
                     print("You cannot use that ability in battle...")
                     seperator()
                     print("Please choose a valid option for your turn.")
@@ -367,50 +466,105 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
             
             elif character.role.lower() == 'knight':
                 while True:
-                    spec_ability = input(f"Please enter one of your character's special abilities ({Character.knight_special_abilities[0]}, {Character.knight_special_abilities[1]}, {Character.knight_special_abilities[2]}): ").lower()
-                    if spec_ability in [Character.knight_special_abilities[0].lower(), Character.knight_special_abilities[1].lower(), Character.knight_special_abilities[2].lower()]:
+                    spec_ability = input(f"Please enter the number associated with one of your character's special abilities (1. {Character.knight_special_abilities[0]}, 2. {Character.knight_special_abilities[1]}, 3. {Character.knight_special_abilities[2]}): ").lower()
+                    if spec_ability in ['1', '2', '3']:
                         break
                     print("Please enter a valid response.")
-                if spec_ability == 'heavy armor':
+
+                if spec_ability == '1':
                     print("You cannot use that ability in battle...")
                     seperator()
                     print("Please choose a valid option for your turn.")
                     seperator()
                     continue
-                elif spec_ability == 'resilience':
-                    print("Special Abilities not yet implemented...")
-                    seperator()
-                    continue
-                elif spec_ability == 'big swing':
-                    # checking if the SA's number of uses are used up for this combat
-                    if character_abilities['big swing'][0] < character_abilities['big swing'][2]:
-                        printwait(f"You wind up and swing your weapon as hard as you can muster...", 3)
-                        character_abilities['big swing'][0] += 1
-                        damage = player_attack(monster, character, 2)
-                        return (damage, '3 attack_roll', 1)
+
+                elif spec_ability == '2':
+                    if character_abilities['resilience'][0] < character_abilities['resilience'][2]:
+                        if character_abilities['resilience'][1] == 1:
+                            printwait("Your determination manifests as a pulse of healing energy, knitting flesh and bolstering spirit.", 2)
+                            seperator()
+                            character_abilities['resilience'][0] += 1
+                            return 'heal 3'
+                        elif character_abilities['resilience'][1] == 2:
+                            printwait("Your determination manifests as a pulse of healing energy, flooding your body, knitting flesh and bolstering spirit.", 2)
+                            seperator()
+                            character_abilities['resilience'][0] += 1
+                            return 'heal 6'
+                        elif character_abilities['resilience'][1] == 3:
+                            printwait("Your determination manifests as radiant healing energy, coursing through your body like a river, knitting flesh, mending bone and bolstering spirit.", 2)
+                            seperator()
+                            character_abilities['resilience'][0] += 1
+                            return 'heal 10'
                     else:
                         printwait("You have run out of uses of that ability in this combat.", 1)
                         seperator()
                         continue
+
+                elif spec_ability == '3':
+                    # checking if the SA's number of uses are used up for this combat
+                    if character_abilities['big swing'][0] < character_abilities['big swing'][2]:
+                        if character_abilities['big swing'][1] == 1:
+                            printwait(f"You wind up and swing your weapon as hard as you can muster...", 2)
+                            character_abilities['big swing'][0] += 1
+                            damage = player_attack(monster, character, 2, 0, 0, True)
+                            seperator()
+                            return (damage, '3 attack_roll', 1)
+                        
+                        elif character_abilities['big swing'][1] == 2:
+                            printwait(f"Channeling your strength, you execute a mighty sweep, your weapon cutting through the air with fearsome momentum...", 2)
+                            character_abilities['big swing'][0] += 1
+                            damage = player_attack(monster, character, 3, 2, 0, True)
+                            seperator()
+                            return (damage, '4 attack_roll', 2)
+                        
+                        elif character_abilities['big swing'][1] == 3:
+                            printwait(f"Time seems to slow as you focus your entire being into a single, monumental strike; your weapon becomes an extension of your will, ready to unleash untold devastation...", 2)
+                            character_abilities['big swing'][0] += 1
+                            damage = player_attack(monster, character, 4, 4, 0, True)
+                            seperator()
+                            return (damage, '5 attack_roll', 3)
+                    else:
+                        printwait("You have run out of uses of that ability in this combat.", 1)
+                        seperator()
+                        continue
+
                 else:
                     print("Unknown Special Ability")
                     continue
 
             elif character.role.lower() == 'wizard':
                 while True:
-                    spec_ability = input(f"Please enter one of your character's special abilities ({Character.wizard_special_abilities[0]}, {Character.wizard_special_abilities[1]}, {Character.wizard_special_abilities[2]}): ").lower()
-                    if spec_ability in [Character.wizard_special_abilities[0].lower(), Character.wizard_special_abilities[1].lower(), Character.wizard_special_abilities[2].lower()]:
+                    spec_ability = input(f"Please enter one of your character's special abilities (1. {Character.wizard_special_abilities[0]}, 2. {Character.wizard_special_abilities[1]}, 3. {Character.wizard_special_abilities[2]}): ").lower()
+                    if spec_ability in ['1', '2', '3']:
                         break
                     print("Please enter a valid response.")
-                if spec_ability == 'spellcasting':
+                if spec_ability == '1':
                     print("Special Abilities not yet implemented...")
                     seperator()
                     continue
-                elif spec_ability == 'magic shield':
-                    print("Special Abilities not yet implemented...")
-                    seperator()
-                    continue
-                elif spec_ability == 'polymorph':
+                # magic shield returns str that is checked for being self shield, 2nd number is amount that can be absorbed, 3rd number is duration of shield (if not used up by the 2nd number going to 0)
+                elif spec_ability == '2':
+                    if character_abilities['magic shield'][0] < character_abilities['magic shield'][2]:
+                        if character_abilities['magic shield'][1] == 1:
+                            printwait("You conjure a shimmering and powerful forcefield around yourself.", 2)
+                            seperator()
+                            character_abilities['magic shield'][0] += 1
+                            return ('self shield', 4, 2)
+                        elif character_abilities['magic shield'][1] == 2:
+                            printwait("Arcane sigils flare to life as you weave a robust barrier of iridescent energy, encasing yourself in a dome of protective magic.", 2)
+                            seperator()
+                            character_abilities['magic shield'][0] += 1
+                            return ('self shield', 9, 3)
+                        elif character_abilities['magic shield'][1] == 3:
+                            printwait("The very air crackles with power as you manifest a grand bulwark of arcane might; prismatic energies swirl and solidify into an awe-inspiring spherical shield.", 2)
+                            seperator()
+                            character_abilities['magic shield'][0] += 1
+                            return ('self shield', 14, 4)
+                    else:
+                        printwait("You have run out of uses of that ability in this combat.", 1)
+                        seperator()
+                        continue
+                elif spec_ability == '3':
                     print("Special Abilities not yet implemented...")
                     seperator()
                     continue

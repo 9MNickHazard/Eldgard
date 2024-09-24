@@ -1,6 +1,7 @@
 import time
 import random
 import re
+import pprint
 
 from story_segments import intro_and_char_creation, first_dungeon_jail
 

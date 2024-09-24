@@ -1,6 +1,7 @@
 import time
 import random
 import re
+import pprint
 
 from mechanics import combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, roll_loot, perform_stat_check
 from character_and_monsters import Character, Monster
@@ -94,7 +95,7 @@ def intro_and_char_creation():
     print("Wizard:")
     print("----------------------------------------------------------------------------------------------------------------------------------")
     print("| Stat Bonuses:            Special Abilities:                                                                                    |")
-    print("| Strength: -3             - Spellcasting: Access to various help spells                                                         |")
+    print("| Strength: -3             - Fire Storm: a damaging spell that burns the opponent for some amount of turns                       |")
     print("| Dexterity: +0            - Magic Shield: Increased Armor Class for a turn                                                      |")
     print("| Constitution: -2         - Polymorph: Ability to change an enemy/npc into a harmless creature                                  |")
     print("| Intelligence: +4                                                                                                               |")
@@ -399,4 +400,12 @@ def first_dungeon_jail(character: Character):
         return 'death'
 
     # time.sleep(2)
-    print("You walk out of the room, a bit bruised and hungover still, but alive. You think to yourself, maybe I shouldn't be picking fights in this state...")
+    printwait("You walk out of the room, a bit bruised and hungover still, but alive. You think to yourself, 'maybe I shouldn't be picking fights in this state...'", 3)
+
+    printwait("You walk through the dimly lit, stone corridor. You come upon a small room. Three doors lead out of them room, to the north, to the west and to the east.", 3)
+    printwait("Rats scurry about the room. You here the faint mutters of some voices behind you. 'SHOOOOOOSH this jail is a maze,' you think to yourself.", 3)
+    printwait("'I should escape quickly if I want to get out of here alive...'", 3)
+    
+
+    
+    

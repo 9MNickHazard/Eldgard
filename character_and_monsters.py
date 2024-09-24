@@ -1,6 +1,7 @@
 import time
 import random
 import re
+import pprint
 
 
 def get_modifier_value(stat):
@@ -38,6 +39,7 @@ class Character:
         self.evil_rating = 0
 
         self.good_rating = 0
+
         
         # core stats
         self.strength = strength
@@ -64,15 +66,22 @@ class Character:
             'heavy armor': [0, 1, 1],
             'resilience': [0, 1, 1],
             'big swing': [0, 1, 1],
-            'spellcasting': [0, 1, 1],
+            'fire storm': [0, 1, 1],
             'magic shield': [0, 1, 1],
             'polymorph': [0, 1, 1],
         }
 
+        self.inventory = {
+        'gold_coins': 0,
+        'potions': {'small_health_potion': 0, 'small_attack_potion': 0, 'small_defense_potion': 0},
+        'weapons': {},
+        'misc': {}
+    }
+
 
     archer_special_abilities = ['Blinding Shot', 'Armor Piercing Arrow', 'Nimble Steps']
     knight_special_abilities = ['Heavy Armor', 'Resilience', 'Big Swing']
-    wizard_special_abilities = ['Spellcasting', 'Magic Shield', 'Polymorph']
+    wizard_special_abilities = ['Fire Storm', 'Magic Shield', 'Polymorph']
 
     # Blinding Shot: Fire a special arrow that reduces the enemy's attack roll by 3 for the next 3 turns
     # Armor Piercing Arrow: Ignore enemy's Armor Class for an attack
@@ -80,7 +89,7 @@ class Character:
     # Heavy Armor: Reduced damage from non-magical damage sources
     # Resilience: Recover a certain amount of hitpoints
     # Big Swing: Deal double damage, but add +3 to your enemy's next attack roll
-    # Spellcasting: Access to various help spells
+    # Fire Storm: a damaging spell that burns the opponent for some amount of turns
     # Magic Shield: Increased Armor Class for a turn
     # Polymorph: Ability to change an enemy/npc into a harmless creature  
 
@@ -145,21 +154,18 @@ class Character:
         print(f"Armor Class (AC): {self.armor_class}")
 
 
-    weapon = {
+    starting_weapon = {
         'name': 'none',
         'damage': '1d4 + 1',
+        'accuracy_bonus': 0,
         'type': 'none',
         'rarity': 'none',
-        'required_level': 'none',
+        'required_level': 1,
         'description': 'none',
         'value': 'none',
     }
 
-    inventory = {
-        'gold_coins': 0,
-        'potions': {'small_health_potion': 0, 'small_attack_potion': 0, 'small_defense_potion': 0},
-        'weapons': {}
-    }
+    
 
     
 
@@ -224,3 +230,14 @@ class Monster:
         print(f"Charisma: {self.charisma} (Modifier: {get_modifier_value(self.charisma)})")
         print(f"Hit Points (HP): {self.hit_points}")
         print(f"Armor Class (AC): {self.armor_class}")
+
+class Weapon:
+    def __init__(self, name, damage, accuracy_bonus, weapon_type, rarity, required_level, description, value) -> None:
+        self.name = name
+        self.damage = damage
+        self.accuracy_bonus = accuracy_bonus
+        self.type = weapon_type
+        self.rarity = rarity
+        self.required_level = required_level
+        self.description = description
+        self.value = value

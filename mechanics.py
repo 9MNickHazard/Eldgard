@@ -1,6 +1,7 @@
 import time
 import random
 import re
+import pprint
 
 from character_and_monsters import Character, Monster
 
@@ -55,18 +56,24 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             if player_turn_result == 'heal 3':
                 character_hp += 3
                 if character_hp > character.hit_points:
+                    printwait(f"You heal {3 - character_hp + character.hit_points} hitpoints", 2)
                     character_hp = character.hit_points
-                printwait("You heal 3 hitpoints", 2)
+                else:
+                    printwait("You heal 3 hitpoints", 2)
             elif player_turn_result == 'heal 6':
                 character_hp += 6
                 if character_hp > character.hit_points:
+                    printwait(f"You heal {6 - character_hp + character.hit_points} hitpoints", 2)
                     character_hp = character.hit_points
-                printwait("You heal 6 hitpoints", 2)
+                else:
+                    printwait("You heal 6 hitpoints", 2)
             elif player_turn_result == 'heal 10':
                 character_hp += 10
                 if character_hp > character.hit_points:
+                    printwait(f"You heal {10 - character_hp + character.hit_points} hitpoints", 2)
                     character_hp = character.hit_points
-                printwait("You heal 10 hitpoints", 2)
+                else:
+                    printwait("You heal 10 hitpoints", 2)
             elif player_turn_result == 'fled':
                 return 'fled'
             elif player_turn_result == 'trapped':
@@ -391,7 +398,7 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
             if not custom_print:
                 printwait(f"You cast a spell at the {monster.name}...", 3)
             print(f"You roll a natural 20! Critical hit! Your spell engulfs the {monster.name} in a dazzling vortex of arcane energy, briefly phasing it out of reality. The {monster.name} reappears a second later, looking bewildered and smoking, as if it had been subjected to the heat death and rebirth of several universes in the blink of an eye!")
-        crit_damage = roll_damage_value(character.weapon['damage'])
+        crit_damage = roll_damage_value(character.starting_weapon['damage'])
         crit_damage += crit_damage
         crit_damage *= damage_multiplier
         crit_damage += additional_damage
@@ -412,7 +419,7 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
         
         if attack_roll >= monster.armor_class:
             print("It's a hit!")
-            damage = roll_damage_value(character.weapon['damage'])
+            damage = roll_damage_value(character.starting_weapon['damage'])
             damage *= damage_multiplier
             damage += additional_damage
             print(f"You deal {damage} damage to the {monster.name}.")
@@ -576,7 +583,7 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                 print(f"Unknown Class: {character.role}")
 
         elif choice == '3':
-            print(character.inventory)
+            pprint.pprint(character.inventory)
             seperator()
             # time.sleep(1)
             print("Use Item not yet implemented...")
@@ -604,14 +611,14 @@ def roll_loot(monster: Monster, character: Character, battle_result: str):
         if roll in range(1, monster.loot_drops['chance_of_nothing'] + 1):
             printwait(f"You slay the {monster.name}! You look around the corpse, but unfortunately find no loot worth keeping...", 3)
             print(f"---Here is your inventory---")
-            print(character.inventory)
+            pprint.pprint(character.inventory)
             seperator()
             return 'no_loot'
         else:
             printwait(f"You slay the {monster.name}! You loot the body and find {monster.loot_drops['gold_coins']} Gold Coins! You put the gold in your pocket.", 3)
             character.inventory["gold_coins"] += monster.loot_drops["gold_coins"]
             print(f"---Here is your inventory---")
-            print(character.inventory)
+            pprint.pprint(character.inventory)
             seperator()
             return 'yes_loot'
 

@@ -58,7 +58,7 @@ class Character:
 
         # special abilities, first value in each value's list is how many times the Special Ability has been used in the combat (when assigning this to a value 
         # inside player_turn_1v1), second value is the abilities' level and should not be changed inside the combat function.
-        # third value is the number of times it can be used in a single battle.
+        # third value is the number of times it can be used in a single combat.
         self.special_abilities_dictionary = {
             'blinding shot': [0, 1, 1],
             'armor piercing arrow': [0, 1, 1],

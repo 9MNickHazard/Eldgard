@@ -5,6 +5,7 @@ import pprint
 
 from mechanics import combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, roll_loot, perform_stat_check
 from character_and_monsters import Character, Monster
+from dungeon_maps_and_direction import first_dungeon_function
 
 
 
@@ -111,18 +112,25 @@ def intro_and_char_creation():
     # time.sleep(5)
 
     while True:
-        class_choice = input("Which class would you like to be? Please type in the name of the class and hit enter to choose: ").lower()
-        if class_choice in ['archer', 'knight', 'wizard']:
+        class_choice = input("Which class would you like to be?\n1. Archer\n2. Knight\n3. Wizard\nPlease input the number associated with your choice: ").lower()
+
+        if class_choice in ['1', '2', '3']:
+            if class_choice == '1':
+                class_choice = 'archer'
+            elif class_choice == '2':
+                class_choice = 'knight'
+            else:
+                class_choice = 'wizard'
             break
         print("Please enter a valid choice.")
 
     seperator()
-    print(f"You chose {class_choice.upper()}!")
+    print(f"You chose {class_choice.capitalize()}!")
     # time.sleep(1)
     seperator()
 
     while True:
-        class_confirmation = input(f"Are you sure you want to stick with {class_choice.upper()}? Please enter y to continue or n to re-pick your class: ").lower()
+        class_confirmation = input(f"Are you sure you want to stick with {class_choice.capitalize()}? Please enter y to continue or n to re-pick your class: ").lower()
         if class_confirmation == 'y':
             break
         elif class_confirmation == 'n':
@@ -343,6 +351,7 @@ def first_dungeon_jail(character: Character):
                         printwait("You say with confidence, 'Ahhh my good fellows, Olgur just let me out, I've come to collect my personal belongings and be on my merry way!'", 3)
                         printwait(f"Guard 1: Ayee, that time already? Gloevar, grab {character.name}'s belongs out the chest behind ye. {character.name}, maybe lay off the meade next time. Trot on now.", 3)
                         printwait("Gloevar hands you your belongings, including your gem.", 3)
+                        character.inventory['misc']['Mysterious Gem'] = 1
                         printwait("You do a slight bow and walk briskly to the door on the other side of the room.", 2)
                         printwait(f"As you put your hand on door handle, you hear a yell from near where you came from, 'Oi!! Stop that {character.role}! They stole my keys!!'", 3)
                         printwait("Before you are able to slip out the door, you feel a rough hand grab your collar and whip you around. 'Think we're stupid or something?!' Gloevar says mockingly...", 3)
@@ -405,6 +414,15 @@ def first_dungeon_jail(character: Character):
     printwait("You walk through the dimly lit, stone corridor. You come upon a small room. Three doors lead out of them room, to the north, to the west and to the east.", 3)
     printwait("Rats scurry about the room. You here the faint mutters of some voices behind you. 'SHOOOOOOSH this jail is a maze,' you think to yourself.", 3)
     printwait("'I should escape quickly if I want to get out of here alive...'", 3)
+
+    result = first_dungeon_function(character)
+
+    if result == 'death':
+        death_status = True
+        return 'death'
+    
+    printwait("JAIL COMPLETED!!", 2)
+
     
 
     

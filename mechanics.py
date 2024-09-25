@@ -2,8 +2,9 @@ import time
 import random
 import re
 import pprint
+import copy
 
-from character_and_monsters import Character, Monster
+from character_and_monsters import Character, Monster, Weapon
 
 
 ######################################
@@ -12,7 +13,7 @@ from character_and_monsters import Character, Monster
 
 def initiate_combat(player: Character, monster: Monster, can_flee: bool) -> str:
     while True:
-        choice = input(f"Are you ready to fight the {monster.name}? Please enter y when ready: ")
+        choice = input(f"Are you ready to fight {monster.name}? Please enter y when ready: ")
         if choice == 'y':
             break
         print("Please enter y when ready.")
@@ -37,10 +38,13 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
     monster_effect = False
     self_shield_duration = 0
     self_shield = False
-    character_abilities = character.special_abilities_dictionary
+
+    # deep copy of the dictionary using import copy, so that we dont alter the instanced dictionary
+    character_abilities = copy.deepcopy(character.special_abilities_dictionary)
+
     seperator()
     printwait(f"---BATTLE START!---", 1)
-    printwait(f"{character.name} vs {monster.name}", 1)
+    printwait(f"{character.name} (HP: {character.hit_points}) vs {monster.name} (HP: {monster.hit_points})", 1)
     seperator()
 
     monster_hp = monster.hit_points
@@ -131,7 +135,7 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             if self_shield:
                 self_shield_duration_counter += 1
 
-            if self_shield_duration_counter == self_shield_duration:
+            if self_shield_duration_counter == self_shield_duration and self_shield_duration_counter != 0:
                 self_shield = False
                 self_shield_duration_counter = 0
                 printwait("Your shield's duration runs out... You're vulnerable again.", 1)
@@ -605,6 +609,70 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
 
 ######################################
 
+def add_loot_to_inv(character, total_loot):
+    if isinstance(total_loot, tuple):
+        total_loot = [total_loot]
+
+    for item, quantity in total_loot:
+        if isinstance(item, Weapon):
+            weapon_name = item.name
+            if weapon_name in character.inventory['weapons']:
+                character.inventory['weapons'][weapon_name] += 1
+            else:
+                character.inventory['weapons'][weapon_name] = 1
+        elif item == 'nothing':
+            continue
+        elif item == 'gold_coins':
+            character.inventory['gold_coins'] += quantity
+        elif item in ['small_health_potion', 'small_attack_potion', 'small_defense_potion']:
+            character.inventory['potions'][item] += quantity
+        else:
+            if item in character.inventory['misc']:
+                character.inventory['misc'][item] += quantity
+            else:
+                character.inventory['misc'][item] = quantity
+    print(f"---Here is your inventory---")
+    pprint.pprint(character.inventory)
+
+######################################
+
+def roll_monster_loot(monster: Monster, character: Character, battle_result: str):
+    loot = monster.loot_drops
+    if battle_result == 'player_win':
+        total_probability = 0
+        for item, value in list(loot.items())[1:]:
+            total_probability += value[1]
+        
+        if total_probability != 100:
+            raise ValueError(f"Probabilities must sum to 100, but they sum to {total_probability}")
+        
+        printwait("You loot the body...", 4)
+
+        roll = random.randint(1, 100)
+        cumulative_probability = 0
+        for item, value in list(loot.items())[1:]:
+            probability = value[1]
+            cumulative_probability += probability
+            if roll <= cumulative_probability:
+                total_loot = [(item, value[0])]
+                add_loot_to_inv(character, total_loot)
+                if item == 'nothing':
+                    return 'no_loot'
+                else:
+                    return 'yes_loot'
+
+    elif battle_result == 'monster_win':
+        return 'death'
+
+    elif battle_result == 'fled':
+        return 'fled'
+    
+    else:
+        printwait("battle_result error", 1)
+
+
+########################################
+
 def roll_loot(monster: Monster, character: Character, battle_result: str):
     if battle_result == 'player_win':
         roll = random.randint(1, 100)
@@ -623,14 +691,13 @@ def roll_loot(monster: Monster, character: Character, battle_result: str):
             return 'yes_loot'
 
     elif battle_result == 'monster_win':
-        print("---You have died. GAME OVER---")
         return 'death'
 
     elif battle_result == 'fled':
         return 'fled'
     
     else:
-        printwait("battle_result error", 2)
+        printwait("battle_result error", 1)
 
 
 ######################################
@@ -707,9 +774,9 @@ def get_modifier_value(stat):
         
 ######################################
 
-def printwait(what_to_print: str, wait_time: int):
+def printwait(what_to_print: str = "*Missing printwait string input*", wait_time: int = 1):
     print(what_to_print)
-    # time.sleep(wait_time)
+    time.sleep(wait_time)
 
 ######################################
 
@@ -724,7 +791,7 @@ def perform_stat_check(character: Character, target: int, stat: str, modifier: i
     tries = 0        
     while tries < number_of_attempts:
         result = roll_stat_check_d20(character, target, stat, modifier)
-        # time.sleep(1.5)
+        time.sleep(1.5)
         seperator()
         if result:
             return True

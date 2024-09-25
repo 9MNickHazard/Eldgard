@@ -262,7 +262,7 @@ class first_dungeon_jail_free_explore:
             'small_defense_potion': [2, 5],
             tormunds_greatsword: [1, 2]
             }
-        guard_boss = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', tormund_loot, 2, 10, 2, 8, 8, 8) # CHANGE THIS BACK TO 14, 10, 14, 8, 8, 8
+        guard_boss = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', tormund_loot, 14, 10, 14, 8, 8, 8) # CHANGE THIS BACK TO 14, 10, 14, 8, 8, 8
         printwait("You walk into the room but this room is different... No cobwebs in the corners and no mice or rats running around the floor.", 3)
         printwait("On the other side of the room is a large wooden door, clearly the way out of this dreadful place.", 3)
         printwait("Standing directly in front of that door is one of the largest men you've ever seen... A guard with ornate armor and a horned helmet.", 3)

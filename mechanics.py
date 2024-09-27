@@ -387,7 +387,7 @@ def monster_turn_1v1(monster: Monster, character: Character, monster_effect) -> 
 
 ######################################
 
-def player_attack(monster: Monster, character: Character, damage_multiplier: int | float = 1, additional_damage: int = 0, additional_attack_roll: int = 0, custom_print: bool = False):
+def player_attack(monster: Monster, character: Character, damage_multiplier: int = 1, additional_damage: int = 0, additional_attack_roll: int = 0, custom_print: bool = False):
     attack_roll = random.randint(1, 20)
     if attack_roll == 20:
         if character.role.lower() == 'archer':

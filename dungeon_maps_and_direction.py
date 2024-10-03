@@ -141,14 +141,23 @@ class first_dungeon_jail_free_explore:
 
 
     def rat_room(self, character: Character, number_of_rats):
-        rat_loot = random.randint(1, 10)
-        rat_chance_of_nothing = random.randint(15, 30)
-        rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', {'gold_coins': rat_loot, 'chance_of_nothing': rat_chance_of_nothing}, 3, 3, 5, 1, 1, 1)
+        rat_loot_gold = random.randint(1, 10)
+
+        rat_loot = {
+                "guarenteed_loot": {'gold_coins': 5},
+                "nothing": [1, 30],
+                "gold_coins": [rat_loot_gold, 40],
+                'Small Health Potion': [1, 30], 
+                'Small Attack Potion': [1, 0], 
+                'Small Defense Potion': [1, 0],
+                }
+        rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', rat_loot, 3, 3, 5, 1, 1, 1, 25)
+
         printwait("You walk into the room...", 1)
         if number_of_rats == 1:
             printwait("You see a pair of beaty red eyes in the corner and a scuffle of paws. The Rat screeches and lunges at you...", 3)
             battle_result = initiate_combat(character, rat, True)
-            loot_result = roll_loot(rat, character, battle_result)
+            loot_result = roll_monster_loot(rat, character, battle_result)
             if loot_result in ['no_loot', 'yes_loot', 'fled', 'death']:
                 return loot_result
             else: 
@@ -156,7 +165,7 @@ class first_dungeon_jail_free_explore:
         elif number_of_rats == 2:
             printwait("You see two pairs of beaty red eyes in the corner and a scuffle of paws. The Rat closest to you screeches and lunges at you...", 3)
             battle_result = initiate_combat(character, rat, True)
-            loot_result = roll_loot(rat, character, battle_result)
+            loot_result = roll_monster_loot(rat, character, battle_result)
             if loot_result in ['no_loot', 'yes_loot', 'fled']:
                 printwait("You barely have time to catch your breath. The second Rat lunges at you...", 2)
             elif loot_result == 'death':
@@ -165,7 +174,7 @@ class first_dungeon_jail_free_explore:
                 print('Unkown Loot Error')
 
             battle_result = initiate_combat(character, rat, True)
-            loot_result2 = roll_loot(rat, character, battle_result)
+            loot_result2 = roll_monster_loot(rat, character, battle_result)
 
             if loot_result2 in ['no_loot', 'yes_loot', 'fled', 'death']:
                 return loot_result
@@ -173,15 +182,24 @@ class first_dungeon_jail_free_explore:
                 print('Unkown Loot Error')
 
     def guard_room(self, character: Character, number_of_guards):
-        guard_loot = random.randint(5, 15)
-        guard_chance_of_nothing = random.randint(10, 35)
-        guard = Monster('Jail Guard', '1d4 + 1', 'Human', {'gold_coins': guard_loot, 'chance_of_nothing': guard_chance_of_nothing}, 8, 5, 8, 2, 2, 2)
+        guard_gold = random.randint(5, 20)
+
+        guard_loot = {
+        "guarenteed_loot": {'gold_coins': 5, 'Small Health Potion': 1},
+        "nothing": [1, 20],
+        "gold_coins": [guard_gold, 60],
+        'Small Health Potion': [1, 20], 
+        'Small Attack Potion': [1, 0], 
+        'Small Defense Potion': [1, 0],
+        }
+        guard = Monster('Jail Guard', '1d4 + 1', 'Human', guard_loot, 8, 5, 8, 2, 2, 2, 40)
+
         printwait("You enter the room cautiously...", 1)
         
         if number_of_guards == 1:
             printwait("You spot a guard standing alert. They notice you and draw their weapon. 'What are you doing out of your cell!' they exclaim.", 3)
             battle_result = initiate_combat(character, guard, True)
-            loot_result = roll_loot(guard, character, battle_result)
+            loot_result = roll_monster_loot(guard, character, battle_result)
             if loot_result in ['no_loot', 'yes_loot', 'fled', 'death']:
                 return loot_result
             else:
@@ -190,7 +208,7 @@ class first_dungeon_jail_free_explore:
         elif number_of_guards == 2:
             printwait("You see two guards patrolling the room. The first one notices you and exclaims, 'Oi! You there! Get over here!'", 3)
             battle_result = initiate_combat(character, guard, True)
-            loot_result = roll_loot(guard, character, battle_result)
+            loot_result = roll_monster_loot(guard, character, battle_result)
             if loot_result in ['no_loot', 'yes_loot', 'fled']:
                 printwait("Just as you finish dealing with the first guard, the second one charges at you...", 2)
             elif loot_result == 'death':
@@ -199,7 +217,7 @@ class first_dungeon_jail_free_explore:
                 print('Unknown Loot Error')
 
             battle_result = initiate_combat(character, guard, True)
-            loot_result2 = roll_loot(guard, character, battle_result)
+            loot_result2 = roll_monster_loot(guard, character, battle_result)
 
             if loot_result2 in ['no_loot', 'yes_loot', 'fled', 'death']:
                 return loot_result2
@@ -207,15 +225,25 @@ class first_dungeon_jail_free_explore:
                 print('Unknown Loot Error')
 
     def goblin_room(self, character: Character, number_of_goblins):
-        goblin_loot = random.randint(2, 20)
-        goblin_chance_of_nothing = random.randint(20, 35)
-        goblin = Monster('Mischievous Goblin', '1d6', 'Goblin', {'gold_coins': goblin_loot, 'chance_of_nothing': goblin_chance_of_nothing}, 7, 4, 6, 2, 1, 1)
+        goblin_gold = random.randint(2, 25)
+
+        goblin_loot = {
+        "guarenteed_loot": {'gold_coins': 10, 'Small Attack Potion': 1},
+        "nothing": [1, 25],
+        "gold_coins": [goblin_gold, 65],
+        'Small Health Potion': [1, 10], 
+        'Small Attack Potion': [1, 0], 
+        'Small Defense Potion': [1, 0],
+        }
+
+        goblin = Monster('Mischievous Goblin', '1d6', 'Goblin', goblin_loot, 7, 4, 6, 2, 1, 1, 35)
+
         printwait("You enter the room, your senses on high alert...", 2)
         
         if number_of_goblins == 1:
             printwait("You hear a cackle and spot a goblin lurking in the shadows. It grins wickedly and attacks!", 3)
             battle_result = initiate_combat(character, goblin, True)
-            loot_result = roll_loot(goblin, character, battle_result)
+            loot_result = roll_monster_loot(goblin, character, battle_result)
             if loot_result in ['no_loot', 'yes_loot', 'fled', 'death']:
                 return loot_result
             else:
@@ -224,7 +252,7 @@ class first_dungeon_jail_free_explore:
         elif number_of_goblins == 2:
             printwait("You see two goblins arguing over some trinket. They stop abruptly when they notice you, and the first one charges with a shriek!", 3)
             battle_result = initiate_combat(character, goblin, True)
-            loot_result = roll_loot(goblin, character, battle_result)
+            loot_result = roll_monster_loot(goblin, character, battle_result)
             if loot_result in ['no_loot', 'yes_loot', 'fled']:
                 printwait("As the first goblin falls to the floor, defeated, the second one sneaks up behind you...", 2)
             elif loot_result == 'death':
@@ -233,7 +261,7 @@ class first_dungeon_jail_free_explore:
                 print('Unknown Loot Error')
 
             battle_result = initiate_combat(character, goblin, False)
-            loot_result2 = roll_loot(goblin, character, battle_result)
+            loot_result2 = roll_monster_loot(goblin, character, battle_result)
 
             if loot_result2 in ['no_loot', 'yes_loot', 'fled', 'death']:
                 return loot_result2
@@ -244,25 +272,25 @@ class first_dungeon_jail_free_explore:
         tormunds_greatsword = Weapon("Tormund's Greatsword", '2d4 + 2', 2, 'Sword', 'Rare', 1, "The ornate and massive Greatsword of Tormund, the Reaper's Herald.", 40)
         if 'Mysterious Gem' in character.inventory['misc']:
             tormund_loot = {
-            "guarenteed_loot": {'gold_coins': 40, 'small_health_potion': 2, 'small_attack_potion': 2, 'small_defense_potion': 2},
+            "guarenteed_loot": {'gold_coins': 40, 'Small Health Potion': 2, 'Small Attack Potion': 2, 'Small Defense Potion': 2},
             "nothing": [1, 0],
             "gold_coins": [25, 48],
-            'small_health_potion': [2, 30], 
-            'small_attack_potion': [2, 15], 
-            'small_defense_potion': [2, 5],
+            'Small Health Potion': [2, 30], 
+            'Small Attack Potion': [2, 15], 
+            'Small Defense Potion': [2, 5],
             tormunds_greatsword: [1, 2]
             }
         else:
             tormund_loot = {
-            "guarenteed_loot": {'Mysterious Gem': 1, 'gold_coins': 40, 'small_health_potion': 2, 'small_attack_potion': 2, 'small_defense_potion': 2},
+            "guarenteed_loot": {'Mysterious Gem': 1, 'gold_coins': 40, 'Small Health Potion': 2, 'Small Attack Potion': 2, 'Small Defense Potion': 2},
             "nothing": [1, 0],
             "gold_coins": [25, 48],
-            'small_health_potion': [2, 30], 
-            'small_attack_potion': [2, 15], 
-            'small_defense_potion': [2, 5],
+            'Small Health Potion': [2, 30], 
+            'Small Attack Potion': [2, 15], 
+            'Small Defense Potion': [2, 5],
             tormunds_greatsword: [1, 2]
             }
-        guard_boss = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', tormund_loot, 14, 10, 14, 8, 8, 8) # CHANGE THIS BACK TO 14, 10, 14, 8, 8, 8
+        guard_boss = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', tormund_loot, 14, 10, 14, 8, 8, 8, 300) # CHANGE THIS BACK TO 14, 10, 14, 8, 8, 8
         printwait("You walk into the room but this room is different... No cobwebs in the corners and no mice or rats running around the floor.", 3)
         printwait("On the other side of the room is a large wooden door, clearly the way out of this dreadful place.", 3)
         printwait("Standing directly in front of that door is one of the largest men you've ever seen... A guard with ornate armor and a horned helmet.", 3)
@@ -300,27 +328,27 @@ class first_dungeon_jail_free_explore:
         "guarenteed_loot": {iron_shortsword: 1, 'gold_coins': 2},
         "nothing": [1, 30],
         "gold_coins": [random_gold_chest(), 20],
-        'small_health_potion': [2, 35], 
-        'small_attack_potion': [1, 10], 
-        'small_defense_potion': [1, 5]
+        'Small Health Potion': [2, 35], 
+        'Small Attack Potion': [1, 10], 
+        'Small Defense Potion': [1, 5]
     }
 
     rare_chest_loot = {
         "guarenteed_loot": {iron_longsword: 1, 'gold_coins': 2},
         "nothing": [1, 20],
         "gold_coins": [random_gold_rare_chest(), 30],
-        'small_health_potion': [3, 35], 
-        'small_attack_potion': [1, 10], 
-        'small_defense_potion': [1, 5]
+        'Small Health Potion': [3, 35], 
+        'Small Attack Potion': [1, 10], 
+        'Small Defense Potion': [1, 5]
     }
 
     special_chest_loot = {
         "guarenteed_loot": {mithril_shortsword: 1, 'gold_coins': 5},
         "nothing": [1, 10],
         "gold_coins": [random_gold_special_chest(), 40],
-        'small_health_potion': [4, 35], 
-        'small_attack_potion': [2, 10], 
-        'small_defense_potion': [1, 5]
+        'Small Health Potion': [4, 35], 
+        'Small Attack Potion': [2, 10], 
+        'Small Defense Potion': [1, 5]
     }
 
         

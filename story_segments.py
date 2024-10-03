@@ -3,7 +3,7 @@ import random
 import re
 import pprint
 
-from mechanics import combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, roll_loot, perform_stat_check
+from mechanics import roll_monster_loot, combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, roll_loot, perform_stat_check
 from character_and_monsters import Character, Monster
 from dungeon_maps_and_direction import first_dungeon_function
 
@@ -151,6 +151,7 @@ def intro_and_char_creation():
     while True:
         pronoun_choice = input("Choices: 1. He/Him, 2. She/Her, 3. They/Them. Please input the number associated with your choice: ")
         if pronoun_choice in ['1', '2', '3']:
+            pronoun_choice = int(pronoun_choice)
             break
         print("Please enter a valid option.")
 
@@ -256,9 +257,17 @@ def first_dungeon_jail(character: Character):
     seperator()
 
 
-    first_dungeon_rat_loot = random.randint(1, 10)
-    first_dungeon_rat_chance_of_nothing = random.randint(15, 30)
-    first_dungeon_rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', {'gold_coins': first_dungeon_rat_loot, 'chance_of_nothing': first_dungeon_rat_chance_of_nothing}, 3, 3, 5, 1, 1, 1)
+    first_dungeon_rat_loot_gold = random.randint(1, 10)
+    
+    first_dungeon_rat_loot = {
+            "guarenteed_loot": {'gold_coins': 5},
+            "nothing": [1, 30],
+            "gold_coins": [first_dungeon_rat_loot_gold, 40],
+            'Small Health Potion': [1, 30], 
+            'Small Attack Potion': [1, 0], 
+            'Small Defense Potion': [1, 0],
+            }
+    first_dungeon_rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', first_dungeon_rat_loot, 3, 3, 5, 1, 1, 1, 25)
 
     while True:
         starting_dungeon_first_choice = input("Which path do you take? Type left or right: ")
@@ -278,7 +287,7 @@ def first_dungeon_jail(character: Character):
             seperator()
             # time.sleep(2)
             
-            loot_result = roll_loot(first_dungeon_rat, character, battle_result)
+            loot_result = roll_monster_loot(first_dungeon_rat, character, battle_result)
 
             if loot_result in ['no_loot', 'yes_loot', 'fled']:
                 break
@@ -305,9 +314,9 @@ def first_dungeon_jail(character: Character):
 
             print("You think to yourself, 'hmmmm I must get my gem back, I still need to deliver it to the king...'")
             while True:
-                choice = input(f"what do you want to do? 1. Attack the guards, 2. Attempt to sneak by and steal back your gem, 3. Attempt to convince them into giving back your gem. Please choose the number associated with your choice: ")
+                left_choice = input(f"what do you want to do? 1. Attack the guards, 2. Attempt to sneak by and steal back your gem, 3. Attempt to convince them into giving back your gem. Please choose the number associated with your choice: ")
                 seperator()
-                if choice == '1':
+                if left_choice == '1':
                     character.evil_rating += 1
                     if character.role == 'archer':
                         printwait("You quietly knock an arrow, draw your bow and let it fly. It strikes the closer guard and he crumples to the floor.", 3)
@@ -327,13 +336,13 @@ def first_dungeon_jail(character: Character):
                     else:
                         print("Unknown Class")
 
-                elif choice == '2':
+                elif left_choice == '2':
                     print("You attempt to sneak around the edge of the room in the shadows, but immediately knock into some iron armor strewn on the floor. 'Shit...' you mutter under your breath, but it's too late, the guards spot you...")
                     # time.sleep(4)
                     print(f"Guard 1: Oi! It's {character.name} the {character.role} from last night! What're ya doing out your cell?! Come here...")
                     break
 
-                elif choice == '3':
+                elif left_choice == '3':
                     printwait("---For some options, you will roll a Charisma (CHA) check, based on your Charisma modifier---", 3)
                     printwait("---In this instance, you will gain an additional modifier depending on your answer to the earlier puke option, when you first awoke in your cell---", 4)
                     printwait("---You must beat a 12 to succeed on this check (note that this threshold for success will not always be displayed)---", 3)
@@ -376,19 +385,27 @@ def first_dungeon_jail(character: Character):
             printwait("---It will then be the enemy's turn. Most monsters will just attack, but some higher level monsters may take other actions---", 3)
             seperator()
 
-            first_dungeon_guard_loot = random.randint(5, 20)
-            first_dungeon_guard_chance_of_nothing = random.randint(10, 25)
+            first_dungeon_guard_gold = random.randint(5, 20)
+
+            first_dungeon_guard_loot = {
+            "guarenteed_loot": {'gold_coins': 5, 'Small Health Potion': 1},
+            "nothing": [1, 20],
+            "gold_coins": [first_dungeon_guard_gold, 60],
+            'Small Health Potion': [1, 20], 
+            'Small Attack Potion': [1, 0], 
+            'Small Defense Potion': [1, 0],
+            }
 
             # time.sleep(2)
 
-            if choice == '1':
-                first_dungeon_enraged_guard = Monster('Enraged Guard', '1d4 + 1', 'Human', {'gold_coins': first_dungeon_guard_loot, 'chance_of_nothing': first_dungeon_guard_chance_of_nothing}, 8, 4, 8, 1, 1, 1)
+            if left_choice == '1':
+                first_dungeon_enraged_guard = Monster('Enraged Guard', '1d4 + 1', 'Human', first_dungeon_guard_loot, 8, 4, 8, 1, 1, 1, 50)
                 battle_result = initiate_combat(character, first_dungeon_enraged_guard, False)
-                loot_result = roll_loot(first_dungeon_enraged_guard, character, battle_result)
+                loot_result = roll_monster_loot(first_dungeon_enraged_guard, character, battle_result)
             else:
-                first_dungeon_guard = Monster('Guard', '1d4 + 1', 'Human', {'gold_coins': first_dungeon_guard_loot, 'chance_of_nothing': first_dungeon_guard_chance_of_nothing}, 6, 3, 6, 1, 1, 1)
+                first_dungeon_guard = Monster('Guard', '1d4 + 1', 'Human', first_dungeon_guard_loot, 6, 3, 6, 1, 1, 1, 40)
                 battle_result = initiate_combat(character, first_dungeon_guard, False)
-                loot_result = roll_loot(first_dungeon_guard, character, battle_result)
+                loot_result = roll_monster_loot(first_dungeon_guard, character, battle_result)
 
             if loot_result in ['no_loot', 'yes_loot', 'fled']:
                 break
@@ -422,6 +439,9 @@ def first_dungeon_jail(character: Character):
         return 'death'
     
     printwait("JAIL COMPLETED!!", 2)
+
+def southwold_1(character: Character):
+    printwait("You walk out of the dark and dingy jail into bright sunslight.\nYou squint your eyes and raise your hand above your head to block the sun.\n The village of Southwold is now visible before you, it's a quaint town with humble cottages and stores.\nIt's residents are happily going about their business for the day.", 3)
 
     
 

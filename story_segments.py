@@ -3,7 +3,7 @@ import random
 import re
 import pprint
 
-from mechanics import roll_monster_loot, combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, roll_loot, perform_stat_check
+from mechanics import roll_monster_loot, combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, perform_stat_check
 from character_and_monsters import Character, Monster
 from dungeon_maps_and_direction import first_dungeon_function
 
@@ -35,22 +35,22 @@ def intro_and_char_creation():
 
     player_starting_str = roll_stat("Strength")
     seperator()
-    # time.sleep(.5)
+    time.sleep(.5)
     player_starting_dex = roll_stat("Dexterity")
     seperator()
-    # time.sleep(.5)
+    time.sleep(.5)
     player_starting_con = roll_stat("Constitution")
     seperator()
-    # time.sleep(.5)
+    time.sleep(.5)
     player_starting_int = roll_stat("Intelligence")
     seperator()
-    # time.sleep(.5)
+    time.sleep(.5)
     player_starting_wis = roll_stat("Wisdom")
     seperator()
-    # time.sleep(.5)
+    time.sleep(.5)
     player_starting_cha = roll_stat("Charisma")
     seperator()
-    # time.sleep(.5)
+    time.sleep(.5)
 
     printwait("Now it is time to pick your class!", 2)
     seperator()
@@ -196,26 +196,26 @@ def intro_and_char_creation():
 
 def first_dungeon_jail(character: Character):
     death_status = False
-    printwait("The Adventure Begins...", 2)
-    printwait("...", 2)
-    printwait("...", 2)
-    printwait("You awake with a splitting headache and a groggy feeling. You can still taste the alcohol from the copious amounts of meade you drink the night before.", 2)
+    printwait("The Adventure Begins...", 1)
+    printwait("...", 1)
+    printwait("...", 1)
+    printwait("You awake with a splitting headache and a groggy feeling. You can still taste the alcohol from the copious amounts of meade you drink the night before.", 1)
     seperator()
-    printwait("You wearily look around. You appear to be in a dark jail cell. A few other folks are in there with you, scattered about, all still passed out.", 2)
+    printwait("You wearily look around. You appear to be in a dark jail cell. A few other folks are in there with you, scattered about, all still passed out.", 1)
     seperator()
-    printwait("You spy a puddle of puke in the corner of the jail cell, it makes you a bit naseous.", 2)
+    printwait("You spy a puddle of puke in the corner of the jail cell, it makes you a bit naseous.", 1)
 
     while True:
         puke_choice = input("Do you want to throw up? (Please enter y or n): ").lower()
         if puke_choice == 'y':
             seperator()
-            printwait("You puke your brains out, and wipe off your mouth. You actually feel a lot better!", 2)
+            printwait("You puke your brains out, and wipe off your mouth. You actually feel a lot better!", 1)
             seperator()
-            printwait("You pick up your head and notice that a guard is fast asleep in a chair just within arms reach.", 2)
+            printwait("You pick up your head and notice that a guard is fast asleep in a chair just within arms reach.", 1)
             seperator()
-            printwait("You think to yourself: Hmmm I reckon I could get the cell keys from the guard's back pocket if I'm really careful.", 2)
+            printwait("You think to yourself: Hmmm I reckon I could get the cell keys from the guard's back pocket if I'm really careful.", 1)
             seperator()
-            printwait("---You now need to roll a check to see if you successfully pick the guard's pocket---", 2)
+            printwait("---You now need to roll a check to see if you successfully pick the guard's pocket---", 1)
             printwait(f"---This is a Dexterity check. A d20 will be rolled and your Dexterity modifier ({get_modifier_value(character.dexterity)}) will be applied---", 2)
             printwait("---If you roll above the required value (10 for this check, although this value will not always be given to you), you will pass the check. If you roll below, various things can happen, but in this instance you will be allowed to try again---", 2)
             seperator()
@@ -228,14 +228,14 @@ def first_dungeon_jail(character: Character):
         elif puke_choice == 'n':
             seperator()
             # time.sleep(2)
-            printwait("You hold it in... You feel quite unsettled...", 2)
+            printwait("You hold it in... You feel quite unsettled...", 1)
             seperator()
-            printwait("You pick up your head and notice that a guard is fast asleep in a chair just within arms reach.", 2)
+            printwait("You pick up your head and notice that a guard is fast asleep in a chair just within arms reach.", 1)
             seperator()
-            printwait("You think to yourself: Hmmm I reckon I could get the cell keys from the guard's back pocket if I'm really careful.", 2)
+            printwait("You think to yourself: Hmmm I reckon I could get the cell keys from the guard's back pocket if I'm really careful.", 1)
             seperator()
-            printwait("---You now need to roll a check to see if you successfully pick the guard's pocket---", 2)
-            printwait(f"---This is a Dexterity check. A d20 will be rolled and your Dexterity modifier ({get_modifier_value(character.dexterity)}) will be applied---", 2)
+            printwait("---You now need to roll a check to see if you successfully pick the guard's pocket---", 1)
+            printwait(f"---This is a Dexterity check. A d20 will be rolled and your Dexterity modifier ({get_modifier_value(character.dexterity)}) will be applied---", 1)
             printwait("---If you roll above the required value (10 for this check, although this value will not always be given to you), you will pass the check. If you roll below, various things can happen, but in this instance you will be allowed to try again---", 2)
             printwait("For this Dexterity check you will recieve an additional -2 modifier for choosing not to throw up and feel better.", 2)
             seperator()
@@ -275,7 +275,7 @@ def first_dungeon_jail(character: Character):
             seperator()
             printwait("You go right and walk down the dark corridor. You turn around a corner and come face to face with the biggest rat you've ever seen in your life...", 2)
             seperator()
-            printwait("---It's time for your first battle!---", 2)
+            printwait("---It's time for your first battle!---", 1)
             printwait("---If you die in battle, you will have to restart the entire game! Be careful!---", 2)
             printwait("---You and the rat will take turns doing actions. In a turn you can either decide to Attack, Use a Special Ability, Use an Item, or (in some cases) Attempt to Flee (DEX check)---", 2)
             printwait("---if you attack, you will roll a d20, applying your class's respective modifier (DEX for Archer, STR for Knight, INT for Wizard) against the enemy's Armor Class (AC)---", 2)
@@ -319,18 +319,18 @@ def first_dungeon_jail(character: Character):
                 if left_choice == '1':
                     character.evil_rating += 1
                     if character.role == 'archer':
-                        printwait("You quietly knock an arrow, draw your bow and let it fly. It strikes the closer guard and he crumples to the floor.", 3)
-                        printwait("The other guard screams in rage, looking around frantically. He spots you lurking and the shadows and charges, drawing his sword. 'YOU BASTARD!' he cries out...", 4)
+                        printwait("You quietly knock an arrow, draw your bow and let it fly. It strikes the closer guard and he crumples to the floor.", 2)
+                        printwait("The other guard screams in rage, looking around frantically. He spots you lurking and the shadows and charges, drawing his sword. 'YOU BASTARD!' he cries out...", 3)
                         seperator()
                         break
                     elif character.role == 'knight':
-                        printwait("You quietly draw your sword, and stealthily creep up to the closer guard. You shove your blade in his back, he crumples to the floor.", 3)
-                        printwait("The other guard, who was deep in his goblet, sputters up meade as he sees his friend all of the sudden on the ground. He tosses his drink, drawing his sword. 'YOU BASTARD!' he shouts, as he charges you...", 4)
+                        printwait("You quietly draw your sword, and stealthily creep up to the closer guard. You shove your blade in his back, he crumples to the floor.", 2)
+                        printwait("The other guard, who was deep in his goblet, sputters up meade as he sees his friend all of the sudden on the ground. He tosses his drink, drawing his sword. 'YOU BASTARD!' he shouts, as he charges you...", 3)
                         seperator()
                         break
                     elif character.role == 'wizard':
-                        printwait("You quietly raise your staff, and loose a potent magic dart. It strikes the closer guard and he crumples to the floor.", 3)
-                        printwait("The other guard screams in rage, looking around frantically. He spots you lurking and the shadows and charges, drawing his sword. 'YOU BASTARD!' he cries out...", 4)
+                        printwait("You quietly raise your staff, and loose a potent magic dart. It strikes the closer guard and he crumples to the floor.", 2)
+                        printwait("The other guard screams in rage, looking around frantically. He spots you lurking and the shadows and charges, drawing his sword. 'YOU BASTARD!' he cries out...", 3)
                         seperator()
                         break
                     else:
@@ -343,9 +343,9 @@ def first_dungeon_jail(character: Character):
                     break
 
                 elif left_choice == '3':
-                    printwait("---For some options, you will roll a Charisma (CHA) check, based on your Charisma modifier---", 3)
-                    printwait("---In this instance, you will gain an additional modifier depending on your answer to the earlier puke option, when you first awoke in your cell---", 4)
-                    printwait("---You must beat a 12 to succeed on this check (note that this threshold for success will not always be displayed)---", 3)
+                    printwait("---For some options, you will roll a Charisma (CHA) check, based on your Charisma modifier---", 1)
+                    printwait("---In this instance, you will gain an additional modifier depending on your answer to the earlier puke option, when you first awoke in your cell---", 2)
+                    printwait("---You must beat a 12 to succeed on this check (note that this threshold for success will not always be displayed)---", 2)
 
                     if puke_choice =='y':
                         cha_check = perform_stat_check(character, 12, 'charisma', 2, 1)
@@ -356,20 +356,20 @@ def first_dungeon_jail(character: Character):
 
                     if cha_check == True:
                         character.good_rating += 1
-                        printwait("You brush off the stone dust on your clothes, stand up straight and walk into the light.", 3)
-                        printwait("You say with confidence, 'Ahhh my good fellows, Olgur just let me out, I've come to collect my personal belongings and be on my merry way!'", 3)
+                        printwait("You brush off the stone dust on your clothes, stand up straight and walk into the light.", 2)
+                        printwait("You say with confidence, 'Ahhh my good fellows, Olgur just let me out, I've come to collect my personal belongings and be on my merry way!'", 2)
                         printwait(f"Guard 1: Ayee, that time already? Gloevar, grab {character.name}'s belongs out the chest behind ye. {character.name}, maybe lay off the meade next time. Trot on now.", 3)
-                        printwait("Gloevar hands you your belongings, including your gem.", 3)
+                        printwait("Gloevar hands you your belongings, including your gem.", 1)
                         character.inventory['misc']['Mysterious Gem'] = 1
-                        printwait("You do a slight bow and walk briskly to the door on the other side of the room.", 2)
-                        printwait(f"As you put your hand on door handle, you hear a yell from near where you came from, 'Oi!! Stop that {character.role}! They stole my keys!!'", 3)
+                        printwait("You do a slight bow and walk briskly to the door on the other side of the room.", 1)
+                        printwait(f"As you put your hand on door handle, you hear a yell from near where you came from, 'Oi!! Stop that {character.role}! They stole my keys!!'", 2)
                         printwait("Before you are able to slip out the door, you feel a rough hand grab your collar and whip you around. 'Think we're stupid or something?!' Gloevar says mockingly...", 3)
                         break
 
                     else:
-                        printwait("You brush off the stone dust on your clothes, stand up straight and walk into the light.", 3)
-                        printwait("You say with confidence, 'Ahhh my good fellows, Olgur just let me out, I've come to collect my personal belongings and be on my merry way!'", 3)
-                        printwait(f"Guard 1: 'Oi! {character.name}, you shouldn't be out yer cell yet! Get over here...'", 3)
+                        printwait("You brush off the stone dust on your clothes, stand up straight and walk into the light.", 2)
+                        printwait("You say with confidence, 'Ahhh my good fellows, Olgur just let me out, I've come to collect my personal belongings and be on my merry way!'", 2)
+                        printwait(f"Guard 1: 'Oi! {character.name}, you shouldn't be out yer cell yet! Get over here...'", 2)
                         break
 
                         
@@ -377,12 +377,12 @@ def first_dungeon_jail(character: Character):
                     print("Please input 1, 2 or 3.")
 
             seperator()
-            printwait("---It's time for your first battle!---", 3)
-            printwait("---If you die in battle, you will have to restart the entire game! Be careful!---", 3)
-            printwait("---You and the rat will take turns doing actions. In a turn you can either decide to Attack, Use a Special Ability, Use an Item, or (in some cases) Attempt to Flee (DEX check)---", 3)
-            printwait("---if you attack, you will roll a d20, applying your class's respective modifier (DEX for Archer, STR for Knight, INT for Wizard) against the enemy's Armor Class (AC)---", 3)
-            printwait("---If your attack roll is successful, you will do damage based on your weapon (default damage with no weapon is 1d4 + 1)---", 3)
-            printwait("---It will then be the enemy's turn. Most monsters will just attack, but some higher level monsters may take other actions---", 3)
+            printwait("---It's time for your first battle!---", 1)
+            printwait("---If you die in battle, you will have to restart the entire game! Be careful!---", 2)
+            printwait("---You and the rat will take turns doing actions. In a turn you can either decide to Attack, Use a Special Ability, Use an Item, or (in some cases) Attempt to Flee (DEX check)---", 2)
+            printwait("---if you attack, you will roll a d20, applying your class's respective modifier (DEX for Archer, STR for Knight, INT for Wizard) against the enemy's Armor Class (AC)---", 2)
+            printwait("---If your attack roll is successful, you will do damage based on your weapon (default damage with no weapon is 1d4 + 1)---", 2)
+            printwait("---It will then be the enemy's turn. Most monsters will just attack, but some higher level monsters may take other actions---", 2)
             seperator()
 
             first_dungeon_guard_gold = random.randint(5, 20)
@@ -430,7 +430,7 @@ def first_dungeon_jail(character: Character):
 
     printwait("You walk through the dimly lit, stone corridor. You come upon a small room. Three doors lead out of them room, to the north, to the west and to the east.", 3)
     printwait("Rats scurry about the room. You here the faint mutters of some voices behind you. 'SHOOOOOOSH this jail is a maze,' you think to yourself.", 3)
-    printwait("'I should escape quickly if I want to get out of here alive...'", 3)
+    printwait("'I should escape quickly if I want to get out of here alive...'", 2)
 
     result = first_dungeon_function(character)
 

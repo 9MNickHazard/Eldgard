@@ -19,7 +19,7 @@ def initiate_combat(character: Character, monster: Monster, can_flee: bool) -> s
             break
         print("Please enter y when ready.")
         
-    printwait("First, initiative will be rolled for both you and your opponent.", 2)
+    printwait("First, initiative will be rolled for both you and your opponent.", 1)
     initiative = roll_1v1_initiative(monster, character)
     battle_result = combat_1v1(monster, character, initiative, can_flee)
     if battle_result == 'player_win':
@@ -64,10 +64,10 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
                 if player_turn_result[0] == 'self heal':
                     character_hp += player_turn_result[1]
                     if character_hp > character.hit_points:
-                        printwait(f"You heal {player_turn_result[1] - character_hp + character.hit_points} hitpoints", 2)
+                        printwait(f"You heal {player_turn_result[1] - character_hp + character.hit_points} hitpoints", 1)
                         character_hp = character.hit_points
                     else:
-                        printwait(f"You heal {player_turn_result[1]} hitpoints", 2)
+                        printwait(f"You heal {player_turn_result[1]} hitpoints", 1)
                 elif player_turn_result[0] == 'monster effect':
                     monster_hp -= player_turn_result[1]
                     monster_effect = parse_effect(player_turn_result[2])
@@ -89,12 +89,11 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             if monster_hp <= 0:
                 return 'player_win'
 
-            # time.sleep(2)
             seperator()
-            print(f"---Your Remaining HP: {character_hp}---")
-            print(f"---{monster.name}'s Remaining HP: {monster_hp}---")
+            printwait(f"---Your Remaining HP: {character_hp}---")
+            printwait(f"---{monster.name}'s Remaining HP: {monster_hp}---")
             seperator()
-            # time.sleep(2)
+           
             ################################################################################ working here
             monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
 
@@ -147,12 +146,10 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             if character_hp <= 0:
                 return 'monster_win'
 
-            # time.sleep(2)
             seperator()
-            print(f"---Your Remaining HP: {character_hp}---")
-            print(f"---{monster.name}'s Remaining HP: {monster_hp}---")
+            printwait(f"---Your Remaining HP: {character_hp}---")
+            printwait(f"---{monster.name}'s Remaining HP: {monster_hp}---")
             seperator()
-            # time.sleep(2)
 
 
     elif initiative == 'monster':
@@ -169,7 +166,7 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
                     monster_turn_result = abs(shield_result)
                 else:
                     self_shield = shield_result
-                    printwait(f"Your shield absorbed {monster_turn_result} damage.\nDamage absorption remaining: {self_shield}\nShield duration remaining: {self_shield_duration - self_shield_duration_counter - 1} Turn(s)", 2)
+                    printwait(f"Your shield absorbed {monster_turn_result} damage.\nDamage absorption remaining: {self_shield}\nShield duration remaining: {self_shield_duration - self_shield_duration_counter - 1} Turn(s)", 1)
                     monster_turn_result = 0
 
             if character.role.lower() == 'knight': 
@@ -207,12 +204,10 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             if character_hp <= 0:
                 return 'monster_win'
 
-            # time.sleep(2)
             seperator()
-            print(f"---Your Remaining HP: {character_hp}---")
-            print(f"---{monster.name}'s Remaining HP: {monster_hp}---")
+            printwait(f"---Your Remaining HP: {character_hp}---")
+            printwait(f"---{monster.name}'s Remaining HP: {monster_hp}---")
             seperator()
-            # time.sleep(2)
 
             print("---Your Turn---")
             player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
@@ -221,10 +216,10 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
                 if player_turn_result[0] == 'self heal':
                     character_hp += player_turn_result[1]
                     if character_hp > character.hit_points:
-                        printwait(f"You heal {player_turn_result[1] - character_hp + character.hit_points} hitpoints", 2)
+                        printwait(f"You heal {player_turn_result[1] - character_hp + character.hit_points} hitpoints", 1)
                         character_hp = character.hit_points
                     else:
-                        printwait(f"You heal {player_turn_result[1]} hitpoints", 2)
+                        printwait(f"You heal {player_turn_result[1]} hitpoints", 1)
                 elif player_turn_result[0] == 'monster effect':
                     monster_hp -= player_turn_result[1]
                     monster_effect = parse_effect(player_turn_result[2])
@@ -247,12 +242,10 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             if character_hp <= 0:
                 return 'monster_win'
 
-            # time.sleep(2)
             seperator()
-            print(f"---Your Remaining HP: {character_hp}---")
-            print(f"---{monster.name}'s Remaining HP: {monster_hp}---")
+            printwait(f"---Your Remaining HP: {character_hp}---")
+            printwait(f"---{monster.name}'s Remaining HP: {monster_hp}---")
             seperator()
-            # time.sleep(2)
 
         
 
@@ -302,10 +295,10 @@ def roll_flee_check(monster: Monster, character: Character) -> bool:
         character_flee_check += character.get_modifier(character.dexterity)
         seperator()
         printwait(f"Rolling {monster.name}'s flee check...", 1)
-        printwait(f"{monster.name} rolled a {monster_flee_check}", 2)
+        printwait(f"{monster.name} rolled a {monster_flee_check}", 1)
         seperator()
         printwait(f"Rolling {character.name}'s flee check...", 1)
-        printwait(f"{character.name} rolled a {character_flee_check}", 2)
+        printwait(f"{character.name} rolled a {character_flee_check}", 1)
         seperator()
 
         if character_flee_check > monster_flee_check:
@@ -337,18 +330,16 @@ def roll_damage_value(damage: str) -> int:
 
     total_damage = 0
 
-    print(f"Rolling {damage}...")
-    # time.sleep(1)
+    printwait(f"Rolling {damage}...")
 
     for i in range(number_of_dice):
         roll = random.randint(1, dice_type)
-        print(f"The roll is a {roll}.")
-        # time.sleep(1)
+        printwait(f"The roll is a {roll}.")
         total_damage += roll
 
     total_damage_plus_modifier = total_damage + modifier
-    # time.sleep(1)
-    print(f"The sum of all rolls ({total_damage}) plus the modifier ({modifier}) is: {total_damage_plus_modifier}.")
+    printwait(f"The sum of all rolls ({total_damage}) plus the modifier ({modifier}) is: {total_damage_plus_modifier}.")
+    seperator()
 
     return total_damage_plus_modifier
 
@@ -394,15 +385,15 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
     if attack_roll == 20:
         if character.role.lower() == 'archer':
             if not custom_print:
-                printwait(f"You fire a projectile at the {monster.name}...", 3)
+                printwait(f"You fire a projectile at the {monster.name}...", 2)
             print(f"You roll a natural 20! Critical hit! Your arrow hits the {monster.name} going straight through it, rips a hole in spacetime, travels through a wormhole in the 5th dimension and plunges itself again deep within the shocked {monster.name}!")
         elif character.role.lower() == 'knight':
             if not custom_print:
-                printwait(f"You swing your weapon at the {monster.name}...", 3)
+                printwait(f"You swing your weapon at the {monster.name}...", 2)
             print(f"You roll a natural 20! Critical hit! Your weapon strikes the {monster.name} with such tremendous force that it creates gravitons, temporarily altering gravity. The {monster.name} is lifted off its feet, spun around by the cosmic disturbance, only to be slammed back down onto your waiting blade!")
         else:
             if not custom_print:
-                printwait(f"You cast a spell at the {monster.name}...", 3)
+                printwait(f"You cast a spell at the {monster.name}...", 2)
             print(f"You roll a natural 20! Critical hit! Your spell engulfs the {monster.name} in a dazzling vortex of arcane energy, briefly phasing it out of reality. The {monster.name} reappears a second later, looking bewildered and smoking, as if it had been subjected to the heat death and rebirth of several universes in the blink of an eye!")
         crit_damage = roll_damage_value(character.equipped_items['weapon']['damage'])
         crit_damage += crit_damage
@@ -416,13 +407,13 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
         attack_roll += additional_attack_roll
         if character.role.lower() == 'archer':
             if not custom_print:
-                printwait(f"You fire a projectile at the {monster.name}...", 3)
+                printwait(f"You fire a projectile at the {monster.name}...", 2)
         elif character.role.lower() == 'knight':
             if not custom_print:
-                printwait(f"You swing your weapon at the {monster.name}...", 3)
+                printwait(f"You swing your weapon at the {monster.name}...", 2)
         else:
             if not custom_print:
-                printwait(f"You cast a spell at the {monster.name}...", 3)
+                printwait(f"You cast a spell at the {monster.name}...", 2)
         
         if attack_roll >= monster.armor_class:
             print("It's a hit!")
@@ -434,11 +425,11 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
             return damage
         else:
             if character.role.lower() == 'archer':
-                printwait(f"A child would have got closer to the target than that shot... You deal no damage this turn.", 3)
+                printwait(f"A child would have got closer to the target than that shot... You deal no damage this turn.", 1)
             elif character.role.lower() == 'knight':
-                printwait(f"You swing and miss, falling flat on your face... You deal no damage this turn.", 3)
+                printwait(f"You swing and miss, falling flat on your face... You deal no damage this turn.", 1)
             else:
-                printwait(f"Your spell fizzles out pathetically... You deal no damage this turn.", 3)
+                printwait(f"Your spell fizzles out pathetically... You deal no damage this turn.", 1)
             return 0 
                     
 ######################################
@@ -512,7 +503,7 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                                 printwait(f"Both arrows hit the {monster.name}.", 1)
 
                         elif character_abilities['double shot'][1] == 2:
-                            printwait("You knock two arrows and release them with practiced precision...", 2)
+                            printwait("You knock two arrows and release them with practiced precision...", 1)
                             damage1 = player_attack(monster, character, 1, 0, -2, True)
                             damage2 = player_attack(monster, character, 1, 0, -2, True)
                             damage = damage1 + damage2
@@ -525,7 +516,7 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                                 printwait(f"The arrows strike in rapid succession, the {monster.name} stumbles backwards.", 1)
                             
                         elif character_abilities['double shot'][1] == 3:
-                            printwait("You knock two arrows, imbuing them with power before unleashing...", 2)
+                            printwait("You knock two arrows, imbuing them with power before unleashing...", 1)
                             damage1 = player_attack(monster, character, 1.2, 0, 1, True)
                             damage2 = player_attack(monster, character, 1.2, 0, 1, True)
                             damage = damage1 + damage2
@@ -572,15 +563,15 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                     if character_abilities['resilience'][0] < character_abilities['resilience'][2]:
                         character_abilities['resilience'][0] += 1
                         if character_abilities['resilience'][1] == 1:
-                            printwait("Your determination manifests as a pulse of healing energy, knitting flesh and bolstering spirit.", 2)
+                            printwait("Your determination manifests as a pulse of healing energy, knitting flesh and bolstering spirit.", 1)
                             seperator()
                             return ('self heal', 3)
                         elif character_abilities['resilience'][1] == 2:
-                            printwait("Your determination manifests as a pulse of healing energy, flooding your body, knitting flesh and bolstering spirit.", 2)
+                            printwait("Your determination manifests as a pulse of healing energy, flooding your body, knitting flesh and bolstering spirit.", 1)
                             seperator()
                             return ('self heal', 6)
                         elif character_abilities['resilience'][1] == 3:
-                            printwait("Your determination manifests as radiant healing energy, coursing through your body like a river, knitting flesh, mending bone and bolstering spirit.", 2)
+                            printwait("Your determination manifests as radiant healing energy, coursing through your body like a river, knitting flesh, mending bone and bolstering spirit.", 1)
                             seperator()
                             return ('self heal', 10)
                     else:
@@ -593,19 +584,19 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                     if character_abilities['big swing'][0] < character_abilities['big swing'][2]:
                         character_abilities['big swing'][0] += 1
                         if character_abilities['big swing'][1] == 1:
-                            printwait(f"You wind up and swing your weapon as hard as you can muster...", 2)
+                            printwait(f"You wind up and swing your weapon as hard as you can muster...", 1)
                             damage = player_attack(monster, character, 2, 0, 0, True)
                             seperator()
                             return ('monster effect', damage, '3 attack roll', 1)
                         
                         elif character_abilities['big swing'][1] == 2:
-                            printwait(f"Channeling your strength, you execute a mighty sweep, your weapon cutting through the air with fearsome momentum...", 2)
+                            printwait(f"Channeling your strength, you execute a mighty sweep, your weapon cutting through the air with fearsome momentum...", 1)
                             damage = player_attack(monster, character, 3, 2, 0, True)
                             seperator()
                             return ('monster effect', damage, '4 attack roll', 2)
                         
                         elif character_abilities['big swing'][1] == 3:
-                            printwait(f"Time seems to slow as you focus your entire being into a single, monumental strike; your weapon becomes an extension of your will, ready to unleash untold devastation...", 2)
+                            printwait(f"Time seems to slow as you focus your entire being into a single, monumental strike; your weapon becomes an extension of your will, ready to unleash untold devastation...", 1)
                             damage = player_attack(monster, character, 4, 4, 0, True)
                             seperator()
                             return ('monster effect', damage, '5 attack roll', 3)
@@ -661,15 +652,15 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                     if character_abilities['magic shield'][0] < character_abilities['magic shield'][2]:
                         character_abilities['magic shield'][0] += 1
                         if character_abilities['magic shield'][1] == 1:
-                            printwait("You conjure a shimmering and powerful forcefield around yourself.", 2)
+                            printwait("You conjure a shimmering and powerful forcefield around yourself.", 1)
                             seperator()
                             return ('self shield', 4, 2)
                         elif character_abilities['magic shield'][1] == 2:
-                            printwait("Arcane sigils flare to life as you weave a robust barrier of iridescent energy, encasing yourself in a dome of protective magic.", 2)
+                            printwait("Arcane sigils flare to life as you weave a robust barrier of iridescent energy, encasing yourself in a dome of protective magic.", 1)
                             seperator()
                             return ('self shield', 9, 3)
                         elif character_abilities['magic shield'][1] == 3:
-                            printwait("The very air crackles with power as you manifest a grand bulwark of arcane might; prismatic energies swirl and solidify into an awe-inspiring spherical shield.", 2)
+                            printwait("The very air crackles with power as you manifest a grand bulwark of arcane might; prismatic energies swirl and solidify into an awe-inspiring spherical shield.", 1)
                             seperator()
                             return ('self shield', 14, 4)
                     else:
@@ -785,34 +776,6 @@ def roll_monster_loot(monster: Monster, character: Character, battle_result: str
         printwait("battle_result error in roll_monster_loot()", 1)
 
 
-########################################
-
-def roll_loot(monster: Monster, character: Character, battle_result: str):
-    if battle_result == 'player_win':
-        roll = random.randint(1, 100)
-        if roll in range(1, monster.loot_drops['chance_of_nothing'] + 1):
-            printwait(f"You slay the {monster.name}! You look around the corpse, but unfortunately find no loot worth keeping...", 3)
-            print(f"---Here is your inventory---")
-            pprint.pprint(character.inventory)
-            seperator()
-            return 'no_loot'
-        else:
-            printwait(f"You slay the {monster.name}! You loot the body and find {monster.loot_drops['gold_coins']} Gold Coins! You put the gold in your pocket.", 3)
-            character.inventory["gold_coins"] += monster.loot_drops["gold_coins"]
-            print(f"---Here is your inventory---")
-            pprint.pprint(character.inventory)
-            seperator()
-            return 'yes_loot'
-
-    elif battle_result == 'monster_win':
-        return 'death'
-
-    elif battle_result == 'fled':
-        return 'fled'
-    
-    else:
-        printwait("battle_result error in roll_loot()", 1)
-
 
 ######################################
 # ROLL STAT/CHECK MECHANICS
@@ -890,7 +853,7 @@ def get_modifier_value(stat):
 
 def printwait(what_to_print: str = "*Missing printwait string input*", wait_time: int = 1):
     print(what_to_print)
-    # time.sleep(wait_time) 
+    time.sleep(wait_time) 
 
 ######################################
 

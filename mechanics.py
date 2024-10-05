@@ -53,72 +53,25 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
     monster_hp = monster.hit_points
     character_hp = character.hit_points
 
-    if initiative == 'character':
-        self_shield_duration_counter = 0
-        monster_effect_duration_counter = 0
-        while monster_hp > 0 and character_hp > 0:
-            print("---Your Turn---")
-            player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
+    self_shield_duration_counter = 0
+    monster_effect_duration_counter = 0
 
-            if isinstance(player_turn_result, tuple):
-                if player_turn_result[0] == 'self heal':
-                    character_hp += player_turn_result[1]
-                    if character_hp > character.hit_points:
-                        printwait(f"You heal {player_turn_result[1] - character_hp + character.hit_points} hitpoints", 1)
-                        character_hp = character.hit_points
-                    else:
-                        printwait(f"You heal {player_turn_result[1]} hitpoints", 1)
-                elif player_turn_result[0] == 'monster effect':
-                    monster_hp -= player_turn_result[1]
-                    monster_effect = parse_effect(player_turn_result[2])
-                    monster_effect_duration = player_turn_result[3]
-                elif player_turn_result[0] == 'self shield':
-                    self_shield = player_turn_result[1]
-                    self_shield_duration = player_turn_result[2]
-            elif player_turn_result == 'fled':
-                return 'fled'
-            elif player_turn_result == 'trapped':
-                print("The battle continues...")
-            elif isinstance(player_turn_result, (int, float)):
-                monster_hp -= player_turn_result
+    def apply_shield(monster_turn_result):
+        nonlocal self_shield
+        shield_result = self_shield - monster_turn_result
+        if shield_result <= 0:
+            printwait(f"Your shield absorbed {self_shield} damage.\nShield depleted...", 2)
+            self_shield = 0
+            return abs(shield_result)
+        else:
+            self_shield = shield_result
+            printwait(f"Your shield absorbed {monster_turn_result} damage.\nDamage absorption remaining: {self_shield}\nShield duration remaining: {self_shield_duration - self_shield_duration_counter - 1} Turn(s)", 2)
+            return 0
 
-            else:
-                print(f"Unknown Action: {player_turn_result}")
-
-
-            if monster_hp <= 0:
-                return 'player_win'
-
-            seperator()
-            printwait(f"---Your Remaining HP: {character_hp}---")
-            printwait(f"---{monster.name}'s Remaining HP: {monster_hp}---")
-            seperator()
-           
-            ################################################################################ working here
-            monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
-
-            if self_shield:
-                shield_result = self_shield - monster_turn_result
-                if shield_result <= 0:
-                    printwait(f"Your shield absorbed {self_shield} damage.\nShield depleted...", 2)
-                    self_shield = 0
-                    monster_turn_result = abs(shield_result)
-                else:
-                    self_shield = shield_result
-                    printwait(f"Your shield absorbed {monster_turn_result} damage.\nDamage absorption remaining: {self_shield}\nShield duration remaining: {self_shield_duration - self_shield_duration_counter - 1} Turn(s)", 2)
-                    monster_turn_result = 0
-
-            if character.role.lower() == 'knight': 
-                if character_abilities['heavy armor'][1] == 1:
-                    monster_turn_result *= .95
-                elif character_abilities['heavy armor'][1] == 2:
-                    monster_turn_result *= .90
-                elif character_abilities['heavy armor'][1] == 3:
-                    monster_turn_result *= .85
-                monster_turn_result = math.ceil(monster_turn_result)
-
-            character_hp -= monster_turn_result 
-
+    def process_turn(entity: str):
+        nonlocal character_hp, monster_hp, monster_effect_duration_counter, self_shield_duration_counter, monster_effect, self_shield
+        
+        if entity == 'monster':
             if monster_effect:
                 monster_effect_duration_counter += 1
                 if monster_effect[1] == 'firestorm':
@@ -140,105 +93,88 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             if self_shield <= 0:
                 self_shield = False
                 self_shield_duration_counter = 0
+        elif entity == 'character':
+            pass
+        else:
+            print(f"Unkown Entity: {entity}")
 
-            if monster_hp <= 0:
-                return 'player_win'
-            if character_hp <= 0:
-                return 'monster_win'
+    def character_defense(monster_turn_result):
+        nonlocal character_hp
+        if self_shield:
+            monster_turn_result = apply_shield(monster_turn_result)
 
-            seperator()
-            printwait(f"---Your Remaining HP: {character_hp}---")
-            printwait(f"---{monster.name}'s Remaining HP: {monster_hp}---")
-            seperator()
+        if character.role.lower() == 'knight':
+            if character_abilities['heavy armor'][1] == 1:
+                monster_turn_result *= .95
+            elif character_abilities['heavy armor'][1] == 2:
+                monster_turn_result *= .90
+            elif character_abilities['heavy armor'][1] == 3:
+                monster_turn_result *= .85
+            monster_turn_result = math.ceil(monster_turn_result)
 
+        character_hp -= monster_turn_result
 
-    elif initiative == 'monster':
-        monster_effect_duration_counter = 0
-        self_shield_duration_counter = 0
-        while monster_hp > 0 and character_hp > 0:
-            monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+    def player_turn_sequence():
+        nonlocal character_hp, monster_hp, monster_effect, monster_effect_duration, self_shield, self_shield_duration
+        player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
 
-            if self_shield:
-                shield_result = self_shield - monster_turn_result
-                if shield_result <= 0:
-                    printwait(f"Your shield absorbed {self_shield} damage.\nShield depleted...", 2)
-                    self_shield = 0
-                    monster_turn_result = abs(shield_result)
+        if isinstance(player_turn_result, tuple):
+            if player_turn_result[0] == 'self heal':
+                character_hp += player_turn_result[1]
+                if character_hp > character.hit_points:
+                    printwait(f"You heal {player_turn_result[1] - character_hp + character.hit_points} hitpoints", 1)
+                    character_hp = character.hit_points
                 else:
-                    self_shield = shield_result
-                    printwait(f"Your shield absorbed {monster_turn_result} damage.\nDamage absorption remaining: {self_shield}\nShield duration remaining: {self_shield_duration - self_shield_duration_counter - 1} Turn(s)", 1)
-                    monster_turn_result = 0
+                    printwait(f"You heal {player_turn_result[1]} hitpoints", 1)
+            elif player_turn_result[0] == 'monster effect':
+                monster_hp -= player_turn_result[1]
+                monster_effect = parse_effect(player_turn_result[2])
+                monster_effect_duration = player_turn_result[3]
+            elif player_turn_result[0] == 'self shield':
+                self_shield = player_turn_result[1]
+                self_shield_duration = player_turn_result[2]
+        elif player_turn_result == 'fled':
+            return 'fled'
+        elif player_turn_result == 'trapped':
+            print("The battle continues...")
+        elif isinstance(player_turn_result, (int, float)):
+            monster_hp -= player_turn_result
+        else:
+            print(f"Unknown Action: {player_turn_result}")
 
-            if character.role.lower() == 'knight': 
-                if character_abilities['heavy armor'][1] == 1:
-                    monster_turn_result *= .95
-                elif character_abilities['heavy armor'][1] == 2:
-                    monster_turn_result *= .90
-                elif character_abilities['heavy armor'][1] == 3:
-                    monster_turn_result *= .85
-                monster_turn_result = math.ceil(monster_turn_result)
+        return None
 
-            character_hp -= monster_turn_result 
+    while monster_hp > 0 and character_hp > 0:
+        if initiative == 'character':
+            printwait("--- Your Turn ---", 0.5)
+            result = player_turn_sequence()
+            if result:
+                return result
 
-            if monster_effect:
-                monster_effect_duration_counter += 1
-                if monster_effect[1] == 'firestorm':
-                    monster_hp -= monster_effect[0]
-                    printwait(f"{monster.name} takes {monster_effect[0]} damage from your Fire Storm.\n{monster_effect_duration - monster_effect_duration_counter} turn(s) of Fire Storm remain.")
-
-            if monster_effect_duration_counter == monster_effect_duration:
-                monster_effect = False
-                monster_effect_duration_counter = 0
-
-            if self_shield:
-                self_shield_duration_counter += 1
-
-            if self_shield_duration_counter == self_shield_duration:
-                self_shield = False
-                self_shield_duration_counter = 0
-
-            if self_shield <= 0:
-                self_shield = False
-                self_shield_duration_counter = 0
-
-            if character_hp <= 0:
-                return 'monster_win'
-
-            seperator()
-            printwait(f"---Your Remaining HP: {character_hp}---")
-            printwait(f"---{monster.name}'s Remaining HP: {monster_hp}---")
-            seperator()
-
-            print("---Your Turn---")
-            player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
-
-            if isinstance(player_turn_result, tuple):
-                if player_turn_result[0] == 'self heal':
-                    character_hp += player_turn_result[1]
-                    if character_hp > character.hit_points:
-                        printwait(f"You heal {player_turn_result[1] - character_hp + character.hit_points} hitpoints", 1)
-                        character_hp = character.hit_points
-                    else:
-                        printwait(f"You heal {player_turn_result[1]} hitpoints", 1)
-                elif player_turn_result[0] == 'monster effect':
-                    monster_hp -= player_turn_result[1]
-                    monster_effect = parse_effect(player_turn_result[2])
-                    monster_effect_duration = player_turn_result[3]
-                elif player_turn_result[0] == 'self shield':
-                    self_shield = player_turn_result[1]
-                    self_shield_duration = player_turn_result[2]
-            elif player_turn_result == 'fled':
-                return 'fled'
-            elif player_turn_result == 'trapped':
-                print("The battle continues...")
-            elif isinstance(player_turn_result, (int, float)):
-                monster_hp -= player_turn_result
-
-            else:
-                print(f"Unknown Action: {player_turn_result}")
+            process_turn('character')
 
             if monster_hp <= 0:
+                printwait(f"{monster.name} defeated!! You are victorious!")
                 return 'player_win'
+
+            seperator()
+            printwait(f"--- Your Remaining HP: {character_hp} ---")
+            printwait(f"--- {monster.name}'s Remaining HP: {monster_hp} ---")
+            seperator()
+            printwait(f"--- {monster.name}'s Turn ---", 0.5)
+
+            monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+            character_defense(monster_turn_result)
+
+            process_turn('monster')
+
+        elif initiative == 'monster':
+            printwait(f"--- {monster.name}'s Turn ---", 0.5)
+            monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+            character_defense(monster_turn_result)
+
+            process_turn('monster')
+
             if character_hp <= 0:
                 return 'monster_win'
 
@@ -247,11 +183,25 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             printwait(f"---{monster.name}'s Remaining HP: {monster_hp}---")
             seperator()
 
+            printwait("--- Your Turn ---", 0.5)
+            result = player_turn_sequence()
+            if result:
+                return result
+            
+            process_turn('character')
+
+        if monster_hp <= 0:
+            printwait(f"{monster.name} defeated!! You are victorious!")
+            return 'player_win'
+        if character_hp <= 0:
+            return 'monster_win'
         
+        seperator()
+        printwait(f"--- Your Remaining HP: {character_hp} ---")
+        printwait(f"--- {monster.name}'s Remaining HP: {monster_hp} ---")
+        seperator()
 
-
-    else:
-        print(f"Unknown Initiative Value: {initiative}")
+    print(f"Unknown Initiative Value: {initiative}")
 
 ######################################
 
@@ -371,7 +321,7 @@ def monster_turn_1v1(monster: Monster, character: Character, monster_effect) -> 
     if monster_attack_roll >= character.armor_class:
         print(f"The {monster.name} successfully hits you.")
         monster_damage = roll_damage_value(monster.damage)
-        print(f"The {monster.name} deals {monster_damage} to you. Ouch!")
+        print(f"The {monster.name} deals {monster_damage} damage to you. Ouch!")
         monster_damage = math.ceil(monster_damage)
         return monster_damage
     else:
@@ -712,7 +662,7 @@ def add_loot_to_inv(character, total_loot):
                 character.inventory['weapons'][weapon_name] += 1
             else:
                 character.inventory['weapons'][weapon_name] = 1
-            printwait(f"You loot {quantity} {item}(s)!", 1)
+            printwait(f"You loot {quantity} {weapon_name}(s)!", 1)
         elif item == 'nothing':
             printwait(f"You find nothing...", 1)
             continue
@@ -739,7 +689,7 @@ def roll_monster_loot(monster: Monster, character: Character, battle_result: str
         
         guarenteed_loot = loot['guarenteed_loot']
         guarenteed_loot = list(guarenteed_loot.items())
-        print(f"--------TEST_________\n{guarenteed_loot}")
+
         if guarenteed_loot:
             add_loot_to_inv(character, guarenteed_loot)
 

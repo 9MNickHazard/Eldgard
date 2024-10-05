@@ -442,15 +442,51 @@ class Weapon:
 
 ####################################
 
-# class Named_Monsters:
-#     first_dungeon_rat_loot_gold = random.randint(1, 10)
+class Named_Monsters:
+    def level_1_rat():
+        randomized_gold = random.randint(1, 10)
+
+        loot = {
+            "guarenteed_loot": {'gold_coins': 5, 'Small Health Potion': 1},
+            "nothing": [1, 30],
+            "gold_coins": [randomized_gold, 55],
+            'Small Health Potion': [1, 15] 
+        }
+        
+        level_1_rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', loot, 3, 3, 5, 1, 1, 1, 25)
+        return level_1_rat
     
-#     first_dungeon_rat_loot = {
-#             "guarenteed_loot": {'gold_coins': 5, 'Small Health Potion': 1, 'Small Attack Potion': 0, 'Small Defense Potion': 0},
-#             "nothing": [1, 30],
-#             "gold_coins": [first_dungeon_rat_loot_gold, 40],
-#             'Small Health Potion': [1, 30], 
-#             'Small Attack Potion': [1, 0], 
-#             'Small Defense Potion': [1, 0],
-#             }
-#     first_dungeon_rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', first_dungeon_rat_loot, 3, 3, 5, 1, 1, 1, 25)
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def level_1_guard(enraged: bool = False):
+        randomized_gold = random.randint(5, 20)
+
+        loot = {
+            "guarenteed_loot": {'gold_coins': 10, 'Small Health Potion': 1},
+            "nothing": [1, 20],
+            "gold_coins": [randomized_gold, 60],
+            'Small Health Potion': [1, 20]
+        }
+
+        if enraged:
+            level_1_guard = Monster('Enraged Guard', '1d4 + 1', 'Human', loot, 8, 4, 8, 1, 1, 1, 50)
+        else:
+            level_1_guard = Monster('Guard', '1d4 + 1', 'Human', loot, 6, 3, 6, 1, 1, 1, 40)
+        return level_1_guard
+    
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def level_1_goblin():
+        randomized_gold = random.randint(2, 25)
+
+        loot = {
+            "guarenteed_loot": {'gold_coins': 10, 'Small Attack Potion': 1},
+            "nothing": [1, 25],
+            "gold_coins": [randomized_gold, 65],
+            'Small Health Potion': [1, 10]
+        }
+
+        goblin = Monster('Mischievous Goblin', '1d6', 'Goblin', loot, 7, 4, 6, 2, 1, 1, 35)
+        return goblin
+    
+    # ~~~~~~~~~~~~~~~~~~~~~~~~

@@ -5,7 +5,7 @@ import pprint
 from dataclasses import dataclass
 
 from mechanics import combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, perform_stat_check, add_loot_to_inv, roll_monster_loot
-from character_and_monsters import Character, Monster, Weapon
+from character_and_monsters import Character, Monster, Weapon, Named_Monsters
 
 def randomize_dungeon_room(room_possibilities: dict):
     total_probability = sum(room_possibilities.values())
@@ -141,17 +141,7 @@ class first_dungeon_jail_free_explore:
 
 
     def rat_room(self, character: Character, number_of_rats):
-        rat_loot_gold = random.randint(1, 10)
-
-        rat_loot = {
-                "guarenteed_loot": {'gold_coins': 5},
-                "nothing": [1, 30],
-                "gold_coins": [rat_loot_gold, 40],
-                'Small Health Potion': [1, 30], 
-                'Small Attack Potion': [1, 0], 
-                'Small Defense Potion': [1, 0],
-                }
-        rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', rat_loot, 3, 3, 5, 1, 1, 1, 25)
+        rat = Named_Monsters.level_1_rat()
 
         printwait("You walk into the room...", 1)
         if number_of_rats == 1:
@@ -182,17 +172,7 @@ class first_dungeon_jail_free_explore:
                 print('Unkown Loot Error')
 
     def guard_room(self, character: Character, number_of_guards):
-        guard_gold = random.randint(5, 20)
-
-        guard_loot = {
-        "guarenteed_loot": {'gold_coins': 5, 'Small Health Potion': 1},
-        "nothing": [1, 20],
-        "gold_coins": [guard_gold, 60],
-        'Small Health Potion': [1, 20], 
-        'Small Attack Potion': [1, 0], 
-        'Small Defense Potion': [1, 0],
-        }
-        guard = Monster('Jail Guard', '1d4 + 1', 'Human', guard_loot, 8, 5, 8, 2, 2, 2, 40)
+        guard = Named_Monsters.level_1_guard()
 
         printwait("You enter the room cautiously...", 1)
         
@@ -225,18 +205,7 @@ class first_dungeon_jail_free_explore:
                 print('Unknown Loot Error')
 
     def goblin_room(self, character: Character, number_of_goblins):
-        goblin_gold = random.randint(2, 25)
-
-        goblin_loot = {
-        "guarenteed_loot": {'gold_coins': 10, 'Small Attack Potion': 1},
-        "nothing": [1, 25],
-        "gold_coins": [goblin_gold, 65],
-        'Small Health Potion': [1, 10], 
-        'Small Attack Potion': [1, 0], 
-        'Small Defense Potion': [1, 0],
-        }
-
-        goblin = Monster('Mischievous Goblin', '1d6', 'Goblin', goblin_loot, 7, 4, 6, 2, 1, 1, 35)
+        goblin = Named_Monsters.level_1_goblin()
 
         printwait("You enter the room, your senses on high alert...", 2)
         
@@ -271,26 +240,28 @@ class first_dungeon_jail_free_explore:
     def boss_room(self, character: Character):
         tormunds_greatsword = Weapon("Tormund's Greatsword", '2d4 + 2', 2, 'Sword', 'Rare', 1, "The ornate and massive Greatsword of Tormund, the Reaper's Herald.", 40)
         if 'Mysterious Gem' in character.inventory['misc']:
+            no_gem = False
             tormund_loot = {
             "guarenteed_loot": {'gold_coins': 40, 'Small Health Potion': 2, 'Small Attack Potion': 2, 'Small Defense Potion': 2},
             "nothing": [1, 0],
-            "gold_coins": [25, 48],
+            "gold_coins": [25, 30],
             'Small Health Potion': [2, 30], 
             'Small Attack Potion': [2, 15], 
             'Small Defense Potion': [2, 5],
-            tormunds_greatsword: [1, 2]
+            tormunds_greatsword: [1, 20]
             }
         else:
+            no_gem = True
             tormund_loot = {
             "guarenteed_loot": {'Mysterious Gem': 1, 'gold_coins': 40, 'Small Health Potion': 2, 'Small Attack Potion': 2, 'Small Defense Potion': 2},
             "nothing": [1, 0],
-            "gold_coins": [25, 48],
+            "gold_coins": [25, 30],
             'Small Health Potion': [2, 30], 
             'Small Attack Potion': [2, 15], 
             'Small Defense Potion': [2, 5],
-            tormunds_greatsword: [1, 2]
+            tormunds_greatsword: [1, 20]
             }
-        guard_boss = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', tormund_loot, 14, 10, 14, 8, 8, 8, 300) # CHANGE THIS BACK TO 14, 10, 14, 8, 8, 8
+        guard_boss = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', tormund_loot, 1, 10, 1, 8, 8, 8, 300) # CHANGE THIS BACK TO 14, 10, 14, 8, 8, 8
         printwait("You walk into the room but this room is different... No cobwebs in the corners and no mice or rats running around the floor.", 3)
         printwait("On the other side of the room is a large wooden door, clearly the way out of this dreadful place.", 3)
         printwait("Standing directly in front of that door is one of the largest men you've ever seen... A guard with ornate armor and a horned helmet.", 3)
@@ -303,7 +274,7 @@ class first_dungeon_jail_free_explore:
 
 
         if loot_result in ['no_loot', 'yes_loot', 'fled', 'death']:
-            return loot_result
+            return loot_result, no_gem
         else:
             print('Unknown Loot Error')
     
@@ -354,6 +325,9 @@ class first_dungeon_jail_free_explore:
         
 
     def loot_chest_roll(self, character: Character, chest_loot: dict, number_of_loots):
+        guarenteed_loot = chest_loot['guarenteed_loot']
+        guarenteed_loot = list(guarenteed_loot.items())
+
         total_probability = 0
         for item, value in list(chest_loot.items())[1:]:
             total_probability += value[1]
@@ -361,7 +335,7 @@ class first_dungeon_jail_free_explore:
         if total_probability != 100:
             raise ValueError(f"Probabilities must sum to 100, but they sum to {total_probability}")
         
-        printwait("You loot the chest...", 4)
+        printwait(f"You loot the chest {number_of_loots} time(s)...", 4)
 
         total_loot = []
 
@@ -374,31 +348,42 @@ class first_dungeon_jail_free_explore:
                 if roll <= cumulative_probability:
                     total_loot.append((item, value[0]))
                     break
+        
+        if guarenteed_loot:
+            add_loot_to_inv(character, guarenteed_loot)
 
-        if len(total_loot) >= 2:
-            if total_loot[0][0] == 'nothing' and total_loot[1][0] == 'nothing':
-                printwait("Unfortunate... You find nothing in the chest", 3)
-            elif total_loot[0][0] == 'nothing':
-                printwait(f"You find {total_loot[1][1]} {total_loot[1][0]} in the chest", 3)
-                add_loot_to_inv(character, [total_loot[1]])
-            elif total_loot[1][0] == 'nothing':
-                printwait(f"You find {total_loot[0][1]} {total_loot[0][0]} in the chest", 3)
-                add_loot_to_inv(character, [total_loot[0]])
-            elif total_loot[0][0] == total_loot[1][0]:
-                combined_amount = total_loot[0][1] + total_loot[1][1]
-                printwait(f"You find {combined_amount} {total_loot[0][0]} in the chest", 3)
-                add_loot_to_inv(character, [(total_loot[0][0], combined_amount)])
-            else:
-                printwait(f"You find {total_loot[0][1]} {total_loot[0][0]} and {total_loot[1][1]} {total_loot[1][0]} in the chest", 3)
-                add_loot_to_inv(character, [total_loot[0], total_loot[1]])
-        elif len(total_loot) == 1:
-            if total_loot[0][0] == 'nothing':
-                printwait("Unfortunate... You find nothing in the chest", 3)
-            else:
-                printwait(f"You find {total_loot[0][1]} {total_loot[0][0]} in the chest", 3)
-                add_loot_to_inv(character, [total_loot[0]])
-        else:
-            printwait("Unfortunate... You find nothing in the chest", 3)
+        add_loot_to_inv(character, total_loot)
+
+        # if len(total_loot) >= 2:
+        #     if total_loot[0][0] == 'nothing' and total_loot[1][0] == 'nothing':
+        #         printwait("Unfortunate... You find nothing in the chest", 3)
+        #     elif total_loot[0][0] == 'nothing':
+        #         printwait(f"You find {total_loot[1][1]} {total_loot[1][0]} in the chest", 3)
+        #         add_loot_to_inv(character, [total_loot[1]])
+        #     elif total_loot[1][0] == 'nothing':
+        #         printwait(f"You find {total_loot[0][1]} {total_loot[0][0]} in the chest", 3)
+        #         add_loot_to_inv(character, [total_loot[0]])
+        #     elif total_loot[0][0] == total_loot[1][0]:
+        #         combined_amount = total_loot[0][1] + total_loot[1][1]
+        #         printwait(f"You find {combined_amount} {total_loot[0][0]} in the chest", 3)
+        #         add_loot_to_inv(character, [(total_loot[0][0], combined_amount)])
+        #     else:
+        #         printwait(f"You find {total_loot[0][1]} {total_loot[0][0]} and {total_loot[1][1]} {total_loot[1][0]} in the chest", 3)
+        #         add_loot_to_inv(character, [total_loot[0], total_loot[1]])
+        # elif len(total_loot) == 1:
+        #     if total_loot[0][0] == 'nothing':
+        #         if not guarenteed_loot:
+        #             printwait("Unfortunate... You find nothing in the chest", 3)
+        #         else:
+        #             pass
+        #     else:
+        #         printwait(f"You find {total_loot[0][1]} {total_loot[0][0]} in the chest", 3)
+        #         add_loot_to_inv(character, [total_loot[0]])
+        # else:
+        #     if not guarenteed_loot:
+        #         printwait("Unfortunate... You find nothing in the chest", 3)
+        #     else:
+        #         pass
 
 
         
@@ -503,13 +488,16 @@ def first_dungeon_function(character: Character):
         player_position = next_room
 
         if player_position == 'room45':
-            result = dungeon_instance.boss_room(character)
+            result, no_gem = dungeon_instance.boss_room(character)
             if result == 'death':
                 break
             else:
                 player_position = 'exit'
 
         if player_position == 'exit':
+            if no_gem:
+                printwait("You find your Mysterious Gem on the body of Tormund. He must have had it all along...")
+                seperator()
             printwait("You vanquish Tormund, the Reaper's Herald and successfully escape the jail!", 2)
             seperator()
             return 'dungeon complete'
@@ -518,7 +506,7 @@ def first_dungeon_function(character: Character):
             printwait("You have already been in this room.", 2)
             seperator()
         elif player_position == 'room11':
-            result = dungeon_instance.chest_room(character, 'special chest', chest_looted)
+            result = dungeon_instance.chest_room(character, 'special_chest', chest_looted)
             if result == True:
                 chest_looted = True
         elif player_position == 'room14':
@@ -526,7 +514,7 @@ def first_dungeon_function(character: Character):
             if result == True:
                 chest_looted = True
         elif player_position == 'room54':
-            result = dungeon_instance.chest_room(character, 'rare chest', chest_looted)
+            result = dungeon_instance.chest_room(character, 'rare_chest', chest_looted)
             if result == True:
                 chest_looted = True
         else:
@@ -563,11 +551,11 @@ def first_dungeon_function(character: Character):
                 if result == True:
                     chest_looted = True
             elif randomized_room == 'rare_chest':
-                result = dungeon_instance.chest_room(character, 'rare chest', chest_looted)
+                result = dungeon_instance.chest_room(character, 'rare_chest', chest_looted)
                 if result == True:
                     chest_looted = True
             elif randomized_room == 'special_chest':
-                result = dungeon_instance.chest_room(character, 'special chest', chest_looted)
+                result = dungeon_instance.chest_room(character, 'special_chest', chest_looted)
                 if result == True:
                     chest_looted = True
             else:

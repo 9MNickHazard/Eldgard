@@ -4,7 +4,7 @@ import re
 import pprint
 
 from mechanics import roll_monster_loot, combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, perform_stat_check
-from character_and_monsters import Character, Monster
+from character_and_monsters import Character, Monster, Named_Monsters
 from dungeon_maps_and_direction import first_dungeon_function
 
 
@@ -35,22 +35,22 @@ def intro_and_char_creation():
 
     player_starting_str = roll_stat("Strength")
     seperator()
-    time.sleep(.5)
+    # time.sleep(.5)
     player_starting_dex = roll_stat("Dexterity")
     seperator()
-    time.sleep(.5)
+    # time.sleep(.5)
     player_starting_con = roll_stat("Constitution")
     seperator()
-    time.sleep(.5)
+    # time.sleep(.5)
     player_starting_int = roll_stat("Intelligence")
     seperator()
-    time.sleep(.5)
+    # time.sleep(.5)
     player_starting_wis = roll_stat("Wisdom")
     seperator()
-    time.sleep(.5)
+    # time.sleep(.5)
     player_starting_cha = roll_stat("Charisma")
     seperator()
-    time.sleep(.5)
+    # time.sleep(.5)
 
     printwait("Now it is time to pick your class!", 2)
     seperator()
@@ -256,18 +256,7 @@ def first_dungeon_jail(character: Character):
     printwait("...to the left you hear the faint muttering of some guards and the periodic hearty chuckle. To the right you here the scuttle of small claws on the stone floor.", 2)
     seperator()
 
-
-    first_dungeon_rat_loot_gold = random.randint(1, 10)
-    
-    first_dungeon_rat_loot = {
-            "guarenteed_loot": {'gold_coins': 5},
-            "nothing": [1, 30],
-            "gold_coins": [first_dungeon_rat_loot_gold, 40],
-            'Small Health Potion': [1, 30], 
-            'Small Attack Potion': [1, 0], 
-            'Small Defense Potion': [1, 0],
-            }
-    first_dungeon_rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', first_dungeon_rat_loot, 3, 3, 5, 1, 1, 1, 25)
+    first_dungeon_rat = Named_Monsters.level_1_rat()
 
     while True:
         starting_dungeon_first_choice = input("Which path do you take? Type left or right: ")
@@ -385,25 +374,12 @@ def first_dungeon_jail(character: Character):
             printwait("---It will then be the enemy's turn. Most monsters will just attack, but some higher level monsters may take other actions---", 2)
             seperator()
 
-            first_dungeon_guard_gold = random.randint(5, 20)
-
-            first_dungeon_guard_loot = {
-            "guarenteed_loot": {'gold_coins': 5, 'Small Health Potion': 1},
-            "nothing": [1, 20],
-            "gold_coins": [first_dungeon_guard_gold, 60],
-            'Small Health Potion': [1, 20], 
-            'Small Attack Potion': [1, 0], 
-            'Small Defense Potion': [1, 0],
-            }
-
-            # time.sleep(2)
-
             if left_choice == '1':
-                first_dungeon_enraged_guard = Monster('Enraged Guard', '1d4 + 1', 'Human', first_dungeon_guard_loot, 8, 4, 8, 1, 1, 1, 50)
+                first_dungeon_enraged_guard = Named_Monsters.level_1_guard(True)
                 battle_result = initiate_combat(character, first_dungeon_enraged_guard, False)
                 loot_result = roll_monster_loot(first_dungeon_enraged_guard, character, battle_result)
             else:
-                first_dungeon_guard = Monster('Guard', '1d4 + 1', 'Human', first_dungeon_guard_loot, 6, 3, 6, 1, 1, 1, 40)
+                first_dungeon_guard = Named_Monsters.level_1_guard()
                 battle_result = initiate_combat(character, first_dungeon_guard, False)
                 loot_result = roll_monster_loot(first_dungeon_guard, character, battle_result)
 

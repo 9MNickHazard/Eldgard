@@ -4,7 +4,7 @@ import re
 import pprint
 
 from mechanics import combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, perform_stat_check, add_loot_to_inv, roll_monster_loot
-from character_and_monsters import Character, Monster, Weapon, Named_Monsters
+from character_and_monsters import Character, Monster, Weapon, Named_Monsters, Potion, Named_Potions
 
 def randomize_dungeon_room(room_possibilities: dict):
     total_probability = sum(room_possibilities.values())
@@ -241,23 +241,23 @@ class first_dungeon_jail_free_explore:
         if 'Mysterious Gem' in character.inventory['misc']:
             no_gem = False
             tormund_loot = {
-            "guarenteed_loot": {'gold_coins': 40, 'Small Health Potion': 2, 'Small Attack Potion': 2, 'Small Defense Potion': 2},
+            "guarenteed_loot": {'gold_coins': 40, Named_Potions.small_health_potion: 2, Named_Potions.small_attack_potion: 2, Named_Potions.small_defense_potion: 2},
             "nothing": [1, 0],
             "gold_coins": [25, 30],
-            'Small Health Potion': [2, 30], 
-            'Small Attack Potion': [2, 15], 
-            'Small Defense Potion': [2, 5],
+            Named_Potions.small_health_potion: [2, 30], 
+            Named_Potions.small_attack_potion: [2, 15], 
+            Named_Potions.small_defense_potion: [2, 5],
             tormunds_greatsword: [1, 20]
             }
         else:
             no_gem = True
             tormund_loot = {
-            "guarenteed_loot": {'Mysterious Gem': 1, 'gold_coins': 40, 'Small Health Potion': 2, 'Small Attack Potion': 2, 'Small Defense Potion': 2},
+            "guarenteed_loot": {'Mysterious Gem': 1, 'gold_coins': 40, Named_Potions.small_health_potion: 2, Named_Potions.small_attack_potion: 2, Named_Potions.small_defense_potion: 2},
             "nothing": [1, 0],
             "gold_coins": [25, 30],
-            'Small Health Potion': [2, 30], 
-            'Small Attack Potion': [2, 15], 
-            'Small Defense Potion': [2, 5],
+            Named_Potions.small_health_potion: [2, 30], 
+            Named_Potions.small_attack_potion: [2, 15], 
+            Named_Potions.small_defense_potion: [2, 5],
             tormunds_greatsword: [1, 20]
             }
         guard_boss = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', tormund_loot, 1, 10, 1, 8, 8, 8, 300) # CHANGE THIS BACK TO 14, 10, 14, 8, 8, 8
@@ -298,27 +298,27 @@ class first_dungeon_jail_free_explore:
         "guarenteed_loot": {iron_shortsword: 1, 'gold_coins': 2},
         "nothing": [1, 30],
         "gold_coins": [random_gold_chest(), 20],
-        'Small Health Potion': [2, 35], 
-        'Small Attack Potion': [1, 10], 
-        'Small Defense Potion': [1, 5]
+        Named_Potions.small_health_potion: [2, 35], 
+        Named_Potions.small_attack_potion: [1, 10], 
+        Named_Potions.small_defense_potion: [1, 5]
     }
 
     rare_chest_loot = {
         "guarenteed_loot": {iron_longsword: 1, 'gold_coins': 2},
         "nothing": [1, 20],
         "gold_coins": [random_gold_rare_chest(), 30],
-        'Small Health Potion': [3, 35], 
-        'Small Attack Potion': [1, 10], 
-        'Small Defense Potion': [1, 5]
+        Named_Potions.small_health_potion: [3, 35], 
+        Named_Potions.small_attack_potion: [1, 10], 
+        Named_Potions.small_defense_potion: [1, 5]
     }
 
     special_chest_loot = {
         "guarenteed_loot": {mithril_shortsword: 1, 'gold_coins': 5},
         "nothing": [1, 10],
         "gold_coins": [random_gold_special_chest(), 40],
-        'Small Health Potion': [4, 35], 
-        'Small Attack Potion': [2, 10], 
-        'Small Defense Potion': [1, 5]
+        Named_Potions.small_health_potion: [4, 35], 
+        Named_Potions.small_attack_potion: [2, 10], 
+        Named_Potions.small_defense_potion: [1, 5]
     }
 
         

@@ -5,7 +5,7 @@ import pprint
 import copy
 import math
 
-from character_and_monsters import Character, Monster, Weapon
+from character_and_monsters import Character, Monster, Weapon, Potion, Named_Potions
 
 
 ######################################
@@ -41,6 +41,8 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
     monster_effect = False
     self_shield_duration = 0
     self_shield = False
+    potion_effect_duration = 0
+
 
     # deep copy of the dictionary using import copy, so that we dont alter the instanced dictionary
     character_abilities = copy.deepcopy(character.special_abilities_dictionary)
@@ -55,6 +57,17 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
 
     self_shield_duration_counter = 0
     monster_effect_duration_counter = 0
+    potion_effect_duration_counter = 0
+
+    # Potion Effects
+    health_potion_bonus = False
+    attack_potion_bonus = False
+
+    damage_potion_bonus = False
+    additional_damage_potion_bonus = 0
+    damage_multiplier_potion_bonus = 0
+
+    defense_potion_bonus = False
 
     def apply_shield(monster_turn_result):
         nonlocal self_shield
@@ -69,7 +82,7 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             return 0
 
     def process_turn(entity: str):
-        nonlocal character_hp, monster_hp, monster_effect_duration_counter, self_shield_duration_counter, monster_effect, self_shield
+        nonlocal character_hp, monster_hp, monster_effect_duration_counter, self_shield_duration_counter, monster_effect, self_shield, potion_effect_duration, potion_effect_duration_counter, self_shield_duration, monster_effect_duration, health_potion_bonus
         
         if entity == 'monster':
             if monster_effect:
@@ -94,12 +107,19 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
                 self_shield = False
                 self_shield_duration_counter = 0
         elif entity == 'character':
-            pass
+            if health_potion_bonus:
+                character_hp += health_potion_bonus
+                potion_effect_duration_counter += 1
+                if potion_effect_duration_counter == potion_effect_duration:
+                    health_potion_bonus = False
+                    potion_effect_duration = 0
+                    potion_effect_duration_counter = 0
+                    printwait("Your Health Potion wears off...")
         else:
             print(f"Unkown Entity: {entity}")
 
     def character_defense(monster_turn_result):
-        nonlocal character_hp
+        nonlocal character_hp, self_shield, character_abilities
         if self_shield:
             monster_turn_result = apply_shield(monster_turn_result)
 
@@ -114,11 +134,26 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
 
         character_hp -= monster_turn_result
 
-    def player_turn_sequence():
-        nonlocal character_hp, monster_hp, monster_effect, monster_effect_duration, self_shield, self_shield_duration
-        player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities)
+    def player_turn_sequence(damage_multiplier: int = 1, additional_damage: int = 0, additional_attack_roll: int = 0):
+        nonlocal character_hp, monster_hp, monster_effect, monster_effect_duration, self_shield, self_shield_duration, potion_effect_duration, health_potion_bonus, attack_potion_bonus, additional_damage_potion_bonus, damage_multiplier_potion_bonus, defense_potion_bonus, damage_potion_bonus
 
-        if isinstance(player_turn_result, tuple):
+        player_turn_result = player_turn_1v1(monster, character, flee_possibility, character_abilities, additional_attack_roll, additional_damage, damage_multiplier)
+
+        if isinstance(player_turn_result, Potion):
+            potion_effect_duration = player_turn_result.effect_duration
+            if player_turn_result.type == 'Self Heal':
+                health_potion_bonus = player_turn_result.self_heal_amount
+            elif player_turn_result.type == 'Attack Bonus':
+                attack_potion_bonus = player_turn_result.attack_roll_bonus
+            elif player_turn_result.type == 'Damage Bonus':
+                damage_potion_bonus = True
+                additional_damage_potion_bonus = player_turn_result.additional_damage
+                damage_multiplier_potion_bonus = player_turn_result.damage_multiplier
+            elif player_turn_result.type == 'Defense Bonus':
+                defense_potion_bonus = player_turn_result.bonus_armor_class
+            
+
+        elif isinstance(player_turn_result, tuple):
             if player_turn_result[0] == 'self heal':
                 character_hp += player_turn_result[1]
                 if character_hp > character.hit_points:
@@ -147,7 +182,25 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
     while monster_hp > 0 and character_hp > 0:
         if initiative == 'character':
             printwait("--- Your Turn ---", 0.5)
-            result = player_turn_sequence()
+
+            if attack_potion_bonus:
+                result = player_turn_sequence(1, 0, attack_potion_bonus)
+                potion_effect_duration_counter += 1
+                if potion_effect_duration_counter == potion_effect_duration:
+                    attack_potion_bonus = False
+                    potion_effect_duration = 0
+                    potion_effect_duration_counter = 0
+                    printwait("Your Attack Potion wears off...")
+            elif damage_potion_bonus:
+                result = player_turn_sequence(damage_multiplier_potion_bonus, additional_damage_potion_bonus, 0)
+                potion_effect_duration_counter += 1
+                if potion_effect_duration_counter == potion_effect_duration:
+                    damage_potion_bonus = False
+                    potion_effect_duration = 0
+                    potion_effect_duration_counter = 0
+                    printwait("Your Damage Potion wears off...")
+            else:
+                result = player_turn_sequence()
             if result:
                 return result
 
@@ -163,14 +216,34 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             seperator()
             printwait(f"--- {monster.name}'s Turn ---", 0.5)
 
-            monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+            if defense_potion_bonus:
+                monster_turn_result = monster_turn_1v1(monster, character, monster_effect, defense_potion_bonus)
+                potion_effect_duration_counter += 1
+                if potion_effect_duration_counter == potion_effect_duration:
+                    defense_potion_bonus = False
+                    potion_effect_duration = 0
+                    potion_effect_duration_counter = 0
+                    printwait("Your Defense Potion wears off...")
+            else:
+                monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+
             character_defense(monster_turn_result)
 
             process_turn('monster')
 
         elif initiative == 'monster':
             printwait(f"--- {monster.name}'s Turn ---", 0.5)
-            monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+            if defense_potion_bonus:
+                monster_turn_result = monster_turn_1v1(monster, character, monster_effect, defense_potion_bonus)
+                potion_effect_duration_counter += 1
+                if potion_effect_duration_counter == potion_effect_duration:
+                    defense_potion_bonus = False
+                    potion_effect_duration = 0
+                    potion_effect_duration_counter = 0
+                    printwait("Your Defense Potion wears off...")
+            else:
+                monster_turn_result = monster_turn_1v1(monster, character, monster_effect)
+            
             character_defense(monster_turn_result)
 
             process_turn('monster')
@@ -184,7 +257,26 @@ def combat_1v1(monster: Monster, character: Character, initiative: str, flee_pos
             seperator()
 
             printwait("--- Your Turn ---", 0.5)
-            result = player_turn_sequence()
+
+            if attack_potion_bonus:
+                result = player_turn_sequence(1, 0, attack_potion_bonus)
+                potion_effect_duration_counter += 1
+                if potion_effect_duration_counter == potion_effect_duration:
+                    attack_potion_bonus = False
+                    potion_effect_duration = 0
+                    potion_effect_duration_counter = 0
+                    printwait("Your Attack Potion wears off...")
+            elif damage_potion_bonus:
+                result = player_turn_sequence(damage_multiplier_potion_bonus, additional_damage_potion_bonus, 0)
+                potion_effect_duration_counter += 1
+                if potion_effect_duration_counter == potion_effect_duration:
+                    damage_potion_bonus = False
+                    potion_effect_duration = 0
+                    potion_effect_duration_counter = 0
+                    printwait("Your Damage Potion wears off...")
+            else:
+                result = player_turn_sequence()
+
             if result:
                 return result
             
@@ -295,7 +387,7 @@ def roll_damage_value(damage: str) -> int:
 
 ######################################
 
-def monster_turn_1v1(monster: Monster, character: Character, monster_effect) -> int:
+def monster_turn_1v1(monster: Monster, character: Character, monster_effect, player_ac_bonus: int = 0) -> int:
     print(f"---{monster.name}'s Turn---")
 
     if isinstance(monster_effect, list):
@@ -306,7 +398,11 @@ def monster_turn_1v1(monster: Monster, character: Character, monster_effect) -> 
             monster_attack_roll = random.randint(1, 20)
     else:
         monster_attack_roll = random.randint(1, 20)
-    printwait(f"{monster.name} rolling vs your AC ({character.armor_class})...", 3)
+
+    if player_ac_bonus:
+        printwait(f"{monster.name} rolling vs your AC: {character.armor_class} (+{player_ac_bonus} Bonus AC)...", 3)
+    else:
+        printwait(f"{monster.name} rolling vs your AC: {character.armor_class}...", 3)
 
     if monster_attack_roll == 20:
         monster_crit_damage = roll_damage_value(monster.damage)
@@ -316,9 +412,15 @@ def monster_turn_1v1(monster: Monster, character: Character, monster_effect) -> 
         monster_crit_damage = math.ceil(monster_crit_damage)
         return monster_crit_damage
     
-    monster_attack_roll += monster.get_modifier(monster.strength)
+    if monster.monster_type == 'Dark Wizard':
+        monster_attack_roll += monster.get_modifier(monster.intelligence)
+    else:
+        monster_attack_roll += monster.get_modifier(monster.strength)
 
-    if monster_attack_roll >= character.armor_class:
+    player_armor_class = character.armor_class
+    player_armor_class += player_ac_bonus
+
+    if monster_attack_roll >= player_armor_class:
         print(f"The {monster.name} successfully hits you.")
         monster_damage = roll_damage_value(monster.damage)
         print(f"The {monster.name} deals {monster_damage} damage to you. Ouch!")
@@ -341,7 +443,7 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
             if not custom_print:
                 printwait(f"You swing your weapon at the {monster.name}...", 2)
             print(f"You roll a natural 20! Critical hit! Your weapon strikes the {monster.name} with such tremendous force that it creates gravitons, temporarily altering gravity. The {monster.name} is lifted off its feet, spun around by the cosmic disturbance, only to be slammed back down onto your waiting blade!")
-        else:
+        elif character.role.lower() == 'wizard':
             if not custom_print:
                 printwait(f"You cast a spell at the {monster.name}...", 2)
             print(f"You roll a natural 20! Critical hit! Your spell engulfs the {monster.name} in a dazzling vortex of arcane energy, briefly phasing it out of reality. The {monster.name} reappears a second later, looking bewildered and smoking, as if it had been subjected to the heat death and rebirth of several universes in the blink of an eye!")
@@ -353,7 +455,14 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
         print(f"You do double damage! You deal {crit_damage} damage to the {monster.name}!")
         return crit_damage
     else:
-        attack_roll += character.get_modifier(character.dexterity)
+        if character.role.lower() == 'archer':
+            attack_roll += character.get_modifier(character.dexterity)
+        elif character.role.lower() == 'knight':
+            attack_roll += character.get_modifier(character.strength)
+        elif character.role.lower() == 'wizard':
+            attack_roll += character.get_modifier(character.intelligence)
+
+        
         attack_roll += additional_attack_roll
         if character.role.lower() == 'archer':
             if not custom_print:
@@ -361,7 +470,7 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
         elif character.role.lower() == 'knight':
             if not custom_print:
                 printwait(f"You swing your weapon at the {monster.name}...", 2)
-        else:
+        elif character.role.lower() == 'wizard':
             if not custom_print:
                 printwait(f"You cast a spell at the {monster.name}...", 2)
         
@@ -378,18 +487,18 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
                 printwait(f"A child would have got closer to the target than that shot... You deal no damage this turn.", 1)
             elif character.role.lower() == 'knight':
                 printwait(f"You swing and miss, falling flat on your face... You deal no damage this turn.", 1)
-            else:
+            elif character.role.lower() == 'wizard':
                 printwait(f"Your spell fizzles out pathetically... You deal no damage this turn.", 1)
             return 0 
                     
 ######################################
 
-def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bool, character_abilities: dict):
+def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bool, character_abilities: dict, attack_roll_bonus: int = 0, additional_damage: int = 0, damage_multiplier: int = 1):
     while True:
         choice = input("Choices: 1. Attack, 2. Special Ability, 3. Use an Item, 4. Attempt to Flee. Please pick an action (enter the number of your choice): ")
         if choice == '1':
             if character.role.lower() in ['archer', 'knight', 'wizard']:
-                damage = player_attack(monster, character)
+                damage = player_attack(monster, character, damage_multiplier, additional_damage, attack_roll_bonus)
                 return damage
             else:
                 print(f"Unknown Class: {character.role}")
@@ -629,12 +738,12 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                 print(f"Unknown Class: {character.role}")
 
         elif choice == '3':
-            character.print_inventory()
-            seperator()
-            # time.sleep(1)
-            print("Use Item not yet implemented...")
-            seperator()
-            continue
+            potion = use_potion(character)
+            if potion:
+                return potion
+            else:
+                continue
+
         
         elif choice == '4':
             if not flee_possibility:
@@ -651,6 +760,33 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
 
 ######################################
 
+def use_potion(character):
+                potions_in_inv = list(character.inventory['potions'].keys())
+                print("Which Potion would you like to use? Enter 'n' to cancel.")
+                for index, (potion, quantity) in enumerate(character.inventory['potions'].items()):
+                    print(f"{index + 1}. {potion.name} (x{quantity})")
+                while True:
+                    potion_choice = input("Enter the number associated with your choice: ")
+                    if potion_choice == 'n':
+                        return False
+                    elif potion_choice.isdigit():
+                        potion_choice = int(potion_choice)
+                        if 1 <= potion_choice <= len(potions_in_inv):
+                            chosen_potion = potions_in_inv[potion_choice - 1]
+                            if character.character_level >= chosen_potion.required_level:
+                                character.inventory['potions'][chosen_potion] -= 1
+                                if character.inventory['potions'][chosen_potion] <= 0:
+                                    del character.inventory['potions'][chosen_potion]
+                                return chosen_potion
+                            else:
+                                print("You are not a high enough level to use this potion.")
+                        else:
+                            print("Please enter a valid option.")
+                    else:
+                        print("Please enter a valid option.")
+
+######################################
+
 def add_loot_to_inv(character, total_loot):
     if isinstance(total_loot, tuple):
         total_loot = [total_loot]
@@ -658,9 +794,9 @@ def add_loot_to_inv(character, total_loot):
     for item, quantity in total_loot:
         if isinstance(item, Weapon):
             if item in list(character.inventory['weapons'].keys()):
-                character.inventory['weapons'][item] += 1
+                character.inventory['weapons'][item] += quantity
             else:
-                character.inventory['weapons'][item] = 1
+                character.inventory['weapons'][item] = quantity
             printwait(f"You loot {quantity} {item.name}(s)!", 1)
         elif item == 'nothing':
             printwait(f"You find nothing...", 1)
@@ -668,11 +804,14 @@ def add_loot_to_inv(character, total_loot):
         elif item == 'gold_coins':
             character.inventory['gold_coins'] += quantity
             printwait(f"You loot {quantity} Gold Coins!", 1)
-        elif item in ['Small Health Potion', 'Small Attack Potion', 'Small Defense Potion']:
-            character.inventory['potions'][item] += quantity
-            printwait(f"You loot {quantity} {item}(s)!", 1)
+        elif isinstance(item, Potion):
+            if item in list(character.inventory['potions'].keys()):
+                character.inventory['potions'][item] += quantity   
+            else:
+                character.inventory['potions'][item] = quantity
+            printwait(f"You loot {quantity} {item.name}(s)!", 1)
         else:
-            if item in character.inventory['misc']:
+            if item in list(character.inventory['misc'].keys()):
                 character.inventory['misc'][item] += quantity
             else:
                 character.inventory['misc'][item] = quantity

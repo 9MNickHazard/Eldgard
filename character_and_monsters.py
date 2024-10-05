@@ -54,6 +54,27 @@ class Named_Weapons:
     bronze_longsword = Weapon('Bronze Longsword', '1d4 + 1', 0, 'Sword', 'common', 1, 'none', 0)
     wooden_bow = Weapon('Wooden Bow', '1d4 + 1', 0, 'Bow', 'common', 1, 'none', 0)
 
+
+class Potion:
+    """Potion Types: Self Heal, Attack Bonus, Damage Bonus, Defense Bonus
+    each value is the bonus each turn so effect_duration of 2 and self_heal_amount of 4 would heal 8 over 2 turns"""
+    def __init__(self, name, type, required_level: int = 1, description: str = 'none', effect_duration: int = 1, self_heal_amount: int = 0, attack_roll_bonus: int = 0, additional_damage: int = 0, damage_multiplier: int = 0, bonus_armor_class: int = 0):
+        self.name = name
+        self.type = type
+        self.required_level = required_level
+        self.description = description
+        self.effect_duration = effect_duration
+        self.self_heal_amount = self_heal_amount
+        self.attack_roll_bonus = attack_roll_bonus
+        self.additional_damage = additional_damage
+        self.damage_multiplier = damage_multiplier
+        self.bonus_armor_class = bonus_armor_class
+
+class Named_Potions:
+    small_health_potion = Potion('Small Health Potion', 'Self Heal', 1, "An oozing green brew that restores a few Hit Points. Doesn't look very appetizing...", 2, 4)
+    small_attack_potion = Potion('Small Attack Potion', 'Attack Bonus', 1, "A white, almost glistening potion. One sip and your reflexes quicken.", 3, 0, 4)
+    small_defense_potion = Potion('Small Defense Potion', 'Defense Bonus', 1, "A dark brown muddy potion. But it'll make your skin tough as leather.", 3, 0, 0, 0, 0, 5)
+
 # player character
 class Character:
     def __init__(self, name, role, pronouns, strength, dexterity, constitution, intelligence, wisdom, charisma):
@@ -102,21 +123,21 @@ class Character:
         if role == 'archer':
             self.inventory = {
                 'gold_coins': 0,
-                'potions': {'Small Health Potion': 1, 'Small Attack Potion': 0, 'Small Defense Potion': 0},
+                'potions': {Named_Potions.small_health_potion: 1},
                 'weapons': {Named_Weapons.wooden_bow: 1},
                 'misc': {}
             }
         elif role == 'knight':
             self.inventory = {
                 'gold_coins': 0,
-                'potions': {'Small Health Potion': 1, 'Small Attack Potion': 0, 'Small Defense Potion': 0},
+                'potions': {Named_Potions.small_health_potion: 1},
                 'weapons': {Named_Weapons.bronze_longsword: 1},
                 'misc': {}
             }
         elif role == 'wizard':
             self.inventory = {
                 'gold_coins': 0,
-                'potions': {'Small Health Potion': 1, 'Small Attack Potion': 0, 'Small Defense Potion': 0},
+                'potions': {Named_Potions.small_health_potion: 1},
                 'weapons': {Named_Weapons.maple_staff: 1},
                 'misc': {}
             }
@@ -172,6 +193,8 @@ class Character:
                         print("You are not a high enough level to equip this weapon!")
                 else:
                     print("Please enter a valid option.")
+            else:
+                print("Please enter a valid option.")
 
 
     def apply_role_modifiers(self):
@@ -348,7 +371,7 @@ class Character:
         if self.inventory['potions']:
             for potion, quantity in self.inventory['potions'].items():
                 if quantity > 0:
-                    print(f"  {potion}: {quantity}")
+                    print(f"  {potion.name}: {quantity}")
         else:
             print("  No potions")
         
@@ -471,10 +494,10 @@ class Named_Monsters:
         randomized_gold = random.randint(1, 10)
 
         loot = {
-            "guarenteed_loot": {'gold_coins': 5, 'Small Health Potion': 1},
+            "guarenteed_loot": {'gold_coins': 5, Named_Potions.small_health_potion: 1},
             "nothing": [1, 30],
             "gold_coins": [randomized_gold, 55],
-            'Small Health Potion': [1, 15] 
+            Named_Potions.small_health_potion: [1, 15] 
         }
         
         level_1_rat = Monster('Putrid Rat', '1d4 - 1', 'Rodent', loot, 3, 3, 5, 1, 1, 1, 25)
@@ -486,10 +509,10 @@ class Named_Monsters:
         randomized_gold = random.randint(5, 20)
 
         loot = {
-            "guarenteed_loot": {'gold_coins': 10, 'Small Health Potion': 1},
+            "guarenteed_loot": {'gold_coins': 10, Named_Potions.small_defense_potion: 1},
             "nothing": [1, 20],
             "gold_coins": [randomized_gold, 60],
-            'Small Health Potion': [1, 20]
+            Named_Potions.small_defense_potion: [1, 20]
         }
 
         if enraged:
@@ -504,10 +527,10 @@ class Named_Monsters:
         randomized_gold = random.randint(2, 25)
 
         loot = {
-            "guarenteed_loot": {'gold_coins': 10, 'Small Attack Potion': 1},
+            "guarenteed_loot": {'gold_coins': 10, Named_Potions.small_attack_potion: 1},
             "nothing": [1, 25],
             "gold_coins": [randomized_gold, 65],
-            'Small Health Potion': [1, 10]
+            Named_Potions.small_attack_potion: [1, 10]
         }
 
         goblin = Monster('Mischievous Goblin', '1d6', 'Goblin', loot, 7, 4, 6, 2, 1, 1, 35)

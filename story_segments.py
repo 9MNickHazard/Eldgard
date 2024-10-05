@@ -272,10 +272,11 @@ def first_dungeon_jail(character: Character):
             seperator()
             printwait("---It's time for your first battle!---", 1)
             printwait("---If you die in battle, you will have to restart the entire game! Be careful!---", 2)
-            printwait("---You and the rat will take turns doing actions. In a turn you can either decide to Attack, Use a Special Ability, Use an Item, or (in some cases) Attempt to Flee (DEX check)---", 2)
+            printwait("---You and the Rat will take turns doing actions. In a turn you can either decide to Attack, Use a Special Ability, Use an Item, or (in some cases) Attempt to Flee (DEX check)---", 2)
             printwait("---if you attack, you will roll a d20, applying your class's respective modifier (DEX for Archer, STR for Knight, INT for Wizard) against the enemy's Armor Class (AC)---", 2)
             printwait("---If your attack roll is successful, you will do damage based on your weapon (default damage with no weapon is 1d4 + 1)---", 2)
             printwait("---It will then be the enemy's turn. Most monsters will just attack, but some higher level monsters may take other actions---", 2)
+            printwait("---Using a Potion or a Special Ability while another Potion or Special Ability is still active will override the previous effect---", 2)
             seperator()
 
             battle_result = initiate_combat(character, first_dungeon_rat, False) 
@@ -374,10 +375,11 @@ def first_dungeon_jail(character: Character):
             seperator()
             printwait("---It's time for your first battle!---", 1)
             printwait("---If you die in battle, you will have to restart the entire game! Be careful!---", 2)
-            printwait("---You and the rat will take turns doing actions. In a turn you can either decide to Attack, Use a Special Ability, Use an Item, or (in some cases) Attempt to Flee (DEX check)---", 2)
+            printwait("---You and the Guard will take turns doing actions. In a turn you can either decide to Attack, Use a Special Ability, Use an Item, or (in some cases) Attempt to Flee (DEX check)---", 2)
             printwait("---if you attack, you will roll a d20, applying your class's respective modifier (DEX for Archer, STR for Knight, INT for Wizard) against the enemy's Armor Class (AC)---", 2)
             printwait("---If your attack roll is successful, you will do damage based on your weapon (default damage with no weapon is 1d4 + 1)---", 2)
             printwait("---It will then be the enemy's turn. Most monsters will just attack, but some higher level monsters may take other actions---", 2)
+            printwait("---Using a Potion or a Special Ability while another Potion or Special Ability is still active will override the previous effect---", 2)
             seperator()
 
             if left_choice == '1':

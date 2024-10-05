@@ -513,6 +513,10 @@ def first_dungeon_function(character: Character):
             result = dungeon_instance.chest_room(character, 'chest', chest_looted)
             if result == True:
                 chest_looted = True
+        elif player_position == 'room34':
+            result = dungeon_instance.chest_room(character, 'chest', chest_looted)
+            if result == True:
+                chest_looted = True
         elif player_position == 'room54':
             result = dungeon_instance.chest_room(character, 'rare_chest', chest_looted)
             if result == True:

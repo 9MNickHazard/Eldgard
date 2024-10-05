@@ -38,6 +38,22 @@ archer_special_abilities = ['Blinding Shot', 'Double Shot', 'Nimble Steps']
 knight_special_abilities = ['Heavy Armor', 'Resilience', 'Big Swing']
 wizard_special_abilities = ['Fire Storm', 'Magic Shield', 'Polymorph']
 
+class Weapon:
+    def __init__(self, name, damage, accuracy_bonus, weapon_type, rarity, required_level, description, value) -> None:
+        self.name = name
+        self.damage = damage
+        self.accuracy_bonus = accuracy_bonus
+        self.type = weapon_type
+        self.rarity = rarity
+        self.required_level = required_level
+        self.description = description
+        self.value = value
+
+class Named_Weapons:
+    maple_staff = Weapon('Maple Staff', '1d4 + 1', 0, 'Staff', 'common', 1, 'none', 0)
+    bronze_longsword = Weapon('Bronze Longsword', '1d4 + 1', 0, 'Sword', 'common', 1, 'none', 0)
+    wooden_bow = Weapon('Wooden Bow', '1d4 + 1', 0, 'Bow', 'common', 1, 'none', 0)
+
 # player character
 class Character:
     def __init__(self, name, role, pronouns, strength, dexterity, constitution, intelligence, wisdom, charisma):
@@ -87,63 +103,30 @@ class Character:
             self.inventory = {
                 'gold_coins': 0,
                 'potions': {'Small Health Potion': 1, 'Small Attack Potion': 0, 'Small Defense Potion': 0},
-                'weapons': {
-                    'Wooden Bow': {
-                        'name': 'Wooden Bow',
-                        'damage': '1d4 + 1',
-                        'accuracy_bonus': 0,
-                        'type': 'Bow',
-                        'rarity': 'Common',
-                        'required_level': 1,
-                        'description': 'none',
-                        'value': 'none'
-                    }
-                },
+                'weapons': {Named_Weapons.wooden_bow: 1},
                 'misc': {}
             }
         elif role == 'knight':
             self.inventory = {
                 'gold_coins': 0,
                 'potions': {'Small Health Potion': 1, 'Small Attack Potion': 0, 'Small Defense Potion': 0},
-                'weapons': {
-                    'Bronze Longsword': {
-                        'name': 'Bronze Longsword',
-                        'damage': '1d4 + 1',
-                        'accuracy_bonus': 0,
-                        'type': 'Sword',
-                        'rarity': 'Common',
-                        'required_level': 1,
-                        'description': 'none',
-                        'value': 'none'
-                    }
-                },
+                'weapons': {Named_Weapons.bronze_longsword: 1},
                 'misc': {}
             }
         elif role == 'wizard':
             self.inventory = {
                 'gold_coins': 0,
                 'potions': {'Small Health Potion': 1, 'Small Attack Potion': 0, 'Small Defense Potion': 0},
-                'weapons': {
-                    'Maple Staff': {
-                        'name': 'Maple Staff',
-                        'damage': '1d4 + 1',
-                        'accuracy_bonus': 0,
-                        'type': 'Staff',
-                        'rarity': 'Common',
-                        'required_level': 1,
-                        'description': 'none',
-                        'value': 'none'
-                    }
-                },
+                'weapons': {Named_Weapons.maple_staff: 1},
                 'misc': {}
             }
         
 
         self.equipped_items = {
-            'weapon': next(iter(self.inventory['weapons'].values())),
-            'armor': {},
-            'amulet': {},
-            'ring': {}
+            'weapon': next(iter(self.inventory['weapons'].keys())),
+            'armor': None,
+            'amulet': None,
+            'ring': None
         }
 
         if role == 'archer':
@@ -152,7 +135,6 @@ class Character:
             self.special_abilities = knight_special_abilities
         elif role == 'wizard':
             self.special_abilities = wizard_special_abilities
-
 
     # Blinding Shot: Fire a special arrow that reduces the enemy's attack roll by 3 for the next 3 turns
     # Double shot: fire two arrows with lower accuracy
@@ -164,13 +146,12 @@ class Character:
     # Magic Shield: Increased Armor Class for a turn
     # Polymorph: Ability to change an enemy/npc into a harmless creature  
 
+    # THIS IS MAYBE WORKING
     def equip_weapon(self):
-        weapons_in_inv = []
-        for key in self.inventory['weapons']:
-            weapons = self.inventory['weapons'][key]
-            weapons_in_inv.append(weapons['name'])
+        weapons_in_inv = list(self.inventory['weapons'].keys())
+        weapon_names = [weapon.name for weapon in weapons_in_inv]
 
-        weapon_choices = "\n".join([f"{i+1}. {weapon}" for i, weapon in enumerate(weapons_in_inv)])
+        weapon_choices = "\n".join([f"{i+1}. {weapon}" for i, weapon in enumerate(weapon_names)])
         while True:
             choice = input(f"Which weapon would you like to equip?\n{weapon_choices}\nChoice (type 'n' to cancel): ")
             if choice == 'n':
@@ -178,17 +159,19 @@ class Character:
             elif choice.isdigit():
                 choice = int(choice)
                 if 1 <= choice <= len(weapons_in_inv):
-                    if self.character_level >= self.inventory['weapons'][weapons_in_inv[choice - 1]]['required_level']:
-                        if self.equipped_items['weapon']['name'] == weapons_in_inv[choice - 1]:
-                            print("YOu already have that weapon equipped!")
+                    weapon = weapons_in_inv[choice - 1]
+                    if self.character_level >= weapon.required_level:
+                        if self.equipped_items['weapon'] == weapon:
+                            print("You already have that weapon equipped!")
                         else:
-                            self.equipped_items['weapon'] = self.inventory['weapons'][weapons_in_inv[choice - 1]]
-                            printwait(f"{self.inventory['weapons'][weapons_in_inv[choice - 1]]['name']} equipped!", 1)
+                            self.equipped_items['weapon'] = weapon
+                            printwait(f"{weapon.name} equipped!", 1)
+                            self.print_equipped_items()
                             break
                     else:
                         print("You are not a high enough level to equip this weapon!")
                 else:
-                    print("Please enter a valid number.")
+                    print("Please enter a valid option.")
 
 
     def apply_role_modifiers(self):
@@ -353,14 +336,64 @@ class Character:
         self.display_character()
         seperator()
 
+    def print_inventory(self):
+        start_line = f"\n===== {self.name}'s Inventory ====="
+        print(start_line)
         
-
+        # Gold Coins
+        print(f"\nGold Coins: {self.inventory['gold_coins']}")
         
+        # Potions
+        print("\nPotions:")
+        if self.inventory['potions']:
+            for potion, quantity in self.inventory['potions'].items():
+                if quantity > 0:
+                    print(f"  {potion}: {quantity}")
+        else:
+            print("  No potions")
+        
+        # Weapons
+        print("\nWeapons:")
+        if self.inventory['weapons']:
+            for weapon, quantity in self.inventory['weapons'].items():
+                print(f"  {weapon.name} (x{quantity}):")
+                print(f"    Damage: {weapon.damage}")
+                print(f"    Type: {weapon.type}")
+                print(f"    Rarity: {weapon.rarity}")
+                print(f"    Required Level: {weapon.required_level}")
+                print(f"    Description: {weapon.description}")
+        else:
+            print("  No weapons")
+        
+        # Misc Items
+        print("\nMiscellaneous Items:")
+        if self.inventory['misc']:
+            for item, quantity in self.inventory['misc'].items():
+                print(f"  {item}: {quantity}")
+        else:
+            print("  No miscellaneous items")
+        end_line = ""
+        for character in start_line:
+            end_line += "="
+        end_line = end_line[1:]
+        print(f"\n{end_line}")
 
-
-    
-
-    
+    def print_equipped_items(self):
+        print("\n===== EQUIPPED ITEMS =====")
+        
+        for slot, item in self.equipped_items.items():
+            print(f"\n{slot.capitalize()}:")
+            if item is None:
+                print("  Nothing equipped")
+            elif isinstance(item, Weapon):
+                print(f"  {item.name}")
+                print(f"    Damage: {item.damage}")
+                print(f"    Type: {item.type}")
+                print(f"    Rarity: {item.rarity}")
+                print(f"    Required Level: {item.required_level}")
+                print(f"    Description: {item.description}")
+        
+        print("\n==========================")
 
 ######################################
 
@@ -428,16 +461,7 @@ class Monster:
 
 #####################################
 
-class Weapon:
-    def __init__(self, name, damage, accuracy_bonus, weapon_type, rarity, required_level, description, value) -> None:
-        self.name = name
-        self.damage = damage
-        self.accuracy_bonus = accuracy_bonus
-        self.type = weapon_type
-        self.rarity = rarity
-        self.required_level = required_level
-        self.description = description
-        self.value = value
+
 
 
 ####################################

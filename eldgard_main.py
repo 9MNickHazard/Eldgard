@@ -36,7 +36,7 @@ def main():
 
 # # FOR TESTING!! MAIN()
 # def main():
-#     test_character = player_character = Character(name='Nick_test', role='knight', pronouns=1, strength=15, dexterity=15, constitution=15, intelligence=15, wisdom=15, charisma=15)
+#     test_character = player_character = Character(name='Nick_test', role='knight', pronouns=1, strength=25, dexterity=25, constitution=25, intelligence=25, wisdom=25, charisma=25)
 
 #     while True:
 #         story_segments = [
@@ -60,5 +60,5 @@ def main():
 #             break
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

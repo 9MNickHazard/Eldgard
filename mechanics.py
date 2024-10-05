@@ -345,7 +345,7 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
             if not custom_print:
                 printwait(f"You cast a spell at the {monster.name}...", 2)
             print(f"You roll a natural 20! Critical hit! Your spell engulfs the {monster.name} in a dazzling vortex of arcane energy, briefly phasing it out of reality. The {monster.name} reappears a second later, looking bewildered and smoking, as if it had been subjected to the heat death and rebirth of several universes in the blink of an eye!")
-        crit_damage = roll_damage_value(character.equipped_items['weapon']['damage'])
+        crit_damage = roll_damage_value(character.equipped_items['weapon'].damage)
         crit_damage += crit_damage
         crit_damage *= damage_multiplier
         crit_damage += additional_damage
@@ -367,7 +367,7 @@ def player_attack(monster: Monster, character: Character, damage_multiplier: int
         
         if attack_roll >= monster.armor_class:
             print("It's a hit!")
-            damage = roll_damage_value(character.equipped_items['weapon']['damage'])
+            damage = roll_damage_value(character.equipped_items['weapon'].damage)
             damage *= damage_multiplier
             damage += additional_damage
             damage = math.ceil(damage)
@@ -629,7 +629,7 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
                 print(f"Unknown Class: {character.role}")
 
         elif choice == '3':
-            pprint.pprint(character.inventory)
+            character.print_inventory()
             seperator()
             # time.sleep(1)
             print("Use Item not yet implemented...")
@@ -657,12 +657,11 @@ def add_loot_to_inv(character, total_loot):
 
     for item, quantity in total_loot:
         if isinstance(item, Weapon):
-            weapon_name = item.name
-            if weapon_name in character.inventory['weapons']:
-                character.inventory['weapons'][weapon_name] += 1
+            if item in list(character.inventory['weapons'].keys()):
+                character.inventory['weapons'][item] += 1
             else:
-                character.inventory['weapons'][weapon_name] = 1
-            printwait(f"You loot {quantity} {weapon_name}(s)!", 1)
+                character.inventory['weapons'][item] = 1
+            printwait(f"You loot {quantity} {item.name}(s)!", 1)
         elif item == 'nothing':
             printwait(f"You find nothing...", 1)
             continue
@@ -709,7 +708,7 @@ def roll_monster_loot(monster: Monster, character: Character, battle_result: str
                 total_loot = [(item, value[0])]
                 add_loot_to_inv(character, total_loot)
                 print(f"---Here is your inventory---")
-                pprint.pprint(character.inventory)
+                character.print_inventory()
                 seperator()
                 if item == 'nothing':
                     return 'no_loot'

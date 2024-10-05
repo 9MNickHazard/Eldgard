@@ -259,8 +259,14 @@ def first_dungeon_jail(character: Character):
     first_dungeon_rat = Named_Monsters.level_1_rat()
 
     while True:
-        starting_dungeon_first_choice = input("Which path do you take? Type left or right: ")
-        if starting_dungeon_first_choice == 'right':
+        while True:
+            starting_dungeon_first_choice = input("Which path do you take? 1. Left or 2. Right: ")
+            if starting_dungeon_first_choice in ['1'.strip(), '2'.strip()]:
+                break
+            else:
+                print("Please enter 1 for Left or 2 for Right.")
+        # Right
+        if starting_dungeon_first_choice == '2':
             seperator()
             printwait("You go right and walk down the dark corridor. You turn around a corner and come face to face with the biggest rat you've ever seen in your life...", 2)
             seperator()
@@ -288,8 +294,8 @@ def first_dungeon_jail(character: Character):
 
 
 
-
-        elif starting_dungeon_first_choice =='left':
+        # Left
+        else:
             seperator()
             printwait("You go left and walk down the dark corridor. The muffled voices become louder and you can just barely make out what they are saying...", 3)
             printwait(f"Guard 1: Ohhhh you should have seen this crazy {character.role} last night at the White Goose Tavern! They were deep in their cups, prancing on tables and bellowing some bawdy tune as if they were a drunken bard.", 4)
@@ -392,11 +398,7 @@ def first_dungeon_jail(character: Character):
                 print('Unkown Error')
 
             seperator()
-            # time.sleep(2)
 
-        else:
-            print("Please enter left or right.")
-            seperator()
 
     if death_status == True:
         return 'death'
@@ -414,6 +416,14 @@ def first_dungeon_jail(character: Character):
         death_status = True
         return 'death'
     
+    while True:
+        choice = input("It's time to equip your new weapon! Enter 1 when you're ready to continue: ")
+        if choice == '1':
+            break
+        else:
+            print("Invalid input")
+    character.equip_weapon()
+
     printwait("JAIL COMPLETED!!", 2)
 
 def southwold_1(character: Character):

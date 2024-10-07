@@ -469,14 +469,14 @@ def first_dungeon_function(character: Character):
         player_position = next_room
 
         if player_position == 'room45':
-            result, no_gem = dungeon_instance.boss_room(character)
+            result, gem_in_inv = dungeon_instance.boss_room(character)
             if result == 'death':
                 break
             else:
                 player_position = 'exit'
 
         if player_position == 'exit':
-            if no_gem:
+            if not gem_in_inv:
                 printwait("You find your Mysterious Gem on the body of Tormund. He must have had it all along...")
                 seperator()
             printwait("You vanquish Tormund, the Reaper's Herald and successfully escape the jail!", 2)

@@ -418,16 +418,11 @@ def first_dungeon_jail(character: Character):
     printwait("Rats scurry about the room. You here the faint mutters of some voices behind you. 'SHOOOOOOSH this jail is a maze,' you think to yourself.", 3)
     printwait("'I should escape quickly if I want to get out of here alive...'", 2)
 
-    result, gem_in_inv = first_dungeon_function(character)
+    result = first_dungeon_function(character)
 
     if result == 'death':
         death_status = True
         return 'death'
-    
-    if gem_in_inv == False:
-        seperator()
-        printwait("You find your Mysterious Gem on Tormund's body. I guess he had it all along...")
-        seperator()
     
     while True:
         choice = input("It's time to equip your new weapon! Enter 1 when you're ready to continue: ")

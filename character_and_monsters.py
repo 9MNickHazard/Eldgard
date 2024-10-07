@@ -1,7 +1,6 @@
 import time
 import random
 import re
-import pprint
 
 def printwait(what_to_print: str = "*Missing printwait string input*", wait_time: int = 1):
     print(what_to_print)
@@ -53,6 +52,7 @@ class Named_Weapons:
     maple_staff = Weapon('Maple Staff', '1d4 + 1', 0, 'Staff', 'common', 1, 'none', 0)
     bronze_longsword = Weapon('Bronze Longsword', '1d4 + 1', 0, 'Sword', 'common', 1, 'none', 0)
     wooden_bow = Weapon('Wooden Bow', '1d4 + 1', 0, 'Bow', 'common', 1, 'none', 0)
+    tormunds_greatsword = Weapon("Tormund's Greatsword", '2d4 + 2', 2, 'Sword', 'Rare', 1, "The ornate and massive Greatsword of Tormund, the Reaper's Herald.", 40)
 
 
 class Potion:
@@ -537,3 +537,35 @@ class Named_Monsters:
         return goblin
     
     # ~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def tormund_the_repears_herald(gem_in_inv: bool = True):
+        tormunds_greatsword = Named_Weapons.tormunds_greatsword
+        randomized_gold = random.randint(35, 65)
+        
+        if gem_in_inv:
+            loot = {
+                "guarenteed_loot": {'gold_coins': 40, Named_Potions.small_health_potion: 2, Named_Potions.small_attack_potion: 2, Named_Potions.small_defense_potion: 2},
+                "nothing": [1, 0],
+                "gold_coins": [randomized_gold, 30],
+                Named_Potions.small_health_potion: [2, 30], 
+                Named_Potions.small_attack_potion: [2, 15], 
+                Named_Potions.small_defense_potion: [2, 5],
+                Named_Weapons.tormunds_greatsword: [1, 20]
+            }
+        else:
+            loot = {
+                "guarenteed_loot": {'Mysterious Gem': 1, 'gold_coins': 40, Named_Potions.small_health_potion: 2, Named_Potions.small_attack_potion: 2, Named_Potions.small_defense_potion: 2},
+                "nothing": [1, 0],
+                "gold_coins": [randomized_gold, 30],
+                Named_Potions.small_health_potion: [2, 30], 
+                Named_Potions.small_attack_potion: [2, 15], 
+                Named_Potions.small_defense_potion: [2, 5],
+                Named_Weapons.tormunds_greatsword: [1, 20]
+            }
+
+        tormund = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', loot, 14, 10, 14, 8, 8, 8, 300)
+        return tormund
+    
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
+
+    

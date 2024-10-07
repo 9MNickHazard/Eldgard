@@ -1,7 +1,6 @@
 import time
 import random
 import re
-import pprint
 
 from mechanics import roll_monster_loot, combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, perform_stat_check
 from character_and_monsters import Character, Monster, Named_Monsters
@@ -17,7 +16,7 @@ def intro_and_char_creation():
     printwait("E      L       D   D   G        A   A  R   R   D   D", .8)
     printwait("EEEEE  L       D   D   G  GG    AAAAA  RRRRR   D   D", .8)
     printwait("E      L       D   D   G   G    A   A  R R     D   D", .8)
-    printwait("EEEEE  LLLLLL  DDDD     GGGG    A   A  R  RR   DDDD", 3)
+    printwait("EEEEE  LLLLLL  DDDD     GGGG    A   A  R  RR   DDDD", 1.5)
     seperator()
 
     printwait("Lets roll your stats!", 2)
@@ -149,9 +148,16 @@ def intro_and_char_creation():
     seperator()
     print("What are your pronouns?")
     while True:
-        pronoun_choice = input("Choices: 1. He/Him, 2. She/Her, 3. They/Them. Please input the number associated with your choice: ")
+        pronoun_choice = input("Choices: 1. He/Him, 2. She/Her, 3. They/Them, 4. Any (this will randomize your pronoun choice).\nPlease input the number associated with your choice: ")
+        if pronoun_choice == '4':
+            pronoun_choice = random.choice(['1', '2', '3'])
         if pronoun_choice in ['1', '2', '3']:
-            pronoun_choice = int(pronoun_choice)
+            if pronoun_choice == '1':
+                pronoun_choice = 'He/Him'
+            elif pronoun_choice == '2':
+                pronoun_choice = 'She/Her'
+            elif pronoun_choice == '3':
+                pronoun_choice = 'They/Them'
             break
         print("Please enter a valid option.")
 
@@ -412,11 +418,16 @@ def first_dungeon_jail(character: Character):
     printwait("Rats scurry about the room. You here the faint mutters of some voices behind you. 'SHOOOOOOSH this jail is a maze,' you think to yourself.", 3)
     printwait("'I should escape quickly if I want to get out of here alive...'", 2)
 
-    result = first_dungeon_function(character)
+    result, gem_in_inv = first_dungeon_function(character)
 
     if result == 'death':
         death_status = True
         return 'death'
+    
+    if gem_in_inv == False:
+        seperator()
+        printwait("You find your Mysterious Gem on Tormund's body. I guess he had it all along...")
+        seperator()
     
     while True:
         choice = input("It's time to equip your new weapon! Enter 1 when you're ready to continue: ")

@@ -1,7 +1,6 @@
 import time
 import random
 import re
-import pprint
 import copy
 import math
 
@@ -761,29 +760,29 @@ def player_turn_1v1(monster: Monster, character: Character, flee_possibility: bo
 ######################################
 
 def use_potion(character):
-                potions_in_inv = list(character.inventory['potions'].keys())
-                print("Which Potion would you like to use? Enter 'n' to cancel.")
-                for index, (potion, quantity) in enumerate(character.inventory['potions'].items()):
-                    print(f"{index + 1}. {potion.name} (x{quantity})")
-                while True:
-                    potion_choice = input("Enter the number associated with your choice: ")
-                    if potion_choice == 'n':
-                        return False
-                    elif potion_choice.isdigit():
-                        potion_choice = int(potion_choice)
-                        if 1 <= potion_choice <= len(potions_in_inv):
-                            chosen_potion = potions_in_inv[potion_choice - 1]
-                            if character.character_level >= chosen_potion.required_level:
-                                character.inventory['potions'][chosen_potion] -= 1
-                                if character.inventory['potions'][chosen_potion] <= 0:
-                                    del character.inventory['potions'][chosen_potion]
-                                return chosen_potion
-                            else:
-                                print("You are not a high enough level to use this potion.")
-                        else:
-                            print("Please enter a valid option.")
-                    else:
-                        print("Please enter a valid option.")
+    potions_in_inv = list(character.inventory['potions'].keys())
+    print("Which Potion would you like to use? Enter 'n' to cancel.")
+    for index, (potion, quantity) in enumerate(character.inventory['potions'].items()):
+        print(f"{index + 1}. {potion.name} (x{quantity})")
+    while True:
+        potion_choice = input("Enter the number associated with your choice: ")
+        if potion_choice == 'n':
+            return False
+        elif potion_choice.isdigit():
+            potion_choice = int(potion_choice)
+            if 1 <= potion_choice <= len(potions_in_inv):
+                chosen_potion = potions_in_inv[potion_choice - 1]
+                if character.character_level >= chosen_potion.required_level:
+                    character.inventory['potions'][chosen_potion] -= 1
+                    if character.inventory['potions'][chosen_potion] <= 0:
+                        del character.inventory['potions'][chosen_potion]
+                    return chosen_potion
+                else:
+                    print("You are not a high enough level to use this potion.")
+            else:
+                print("Please enter a valid option.")
+        else:
+            print("Please enter a valid option.")
 
 ######################################
 

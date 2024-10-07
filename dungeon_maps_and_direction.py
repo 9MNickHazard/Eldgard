@@ -1,7 +1,6 @@
 import time
 import random
 import re
-import pprint
 
 from mechanics import combat_1v1, roll_1v1_initiative, roll_flee_check, roll_damage_value, monster_turn_1v1, player_turn_1v1, roll_stat, seperator, roll_stat_check_d20, get_modifier_value, initiate_combat, printwait, perform_stat_check, add_loot_to_inv, roll_monster_loot
 from character_and_monsters import Character, Monster, Weapon, Named_Monsters, Potion, Named_Potions
@@ -237,30 +236,13 @@ class first_dungeon_jail_free_explore:
                 print('Unknown Loot Error')
 
     def boss_room(self, character: Character):
-        tormunds_greatsword = Weapon("Tormund's Greatsword", '2d4 + 2', 2, 'Sword', 'Rare', 1, "The ornate and massive Greatsword of Tormund, the Reaper's Herald.", 40)
         if 'Mysterious Gem' in character.inventory['misc']:
-            no_gem = False
-            tormund_loot = {
-            "guarenteed_loot": {'gold_coins': 40, Named_Potions.small_health_potion: 2, Named_Potions.small_attack_potion: 2, Named_Potions.small_defense_potion: 2},
-            "nothing": [1, 0],
-            "gold_coins": [25, 30],
-            Named_Potions.small_health_potion: [2, 30], 
-            Named_Potions.small_attack_potion: [2, 15], 
-            Named_Potions.small_defense_potion: [2, 5],
-            tormunds_greatsword: [1, 20]
-            }
+            gem_in_inv = True
         else:
-            no_gem = True
-            tormund_loot = {
-            "guarenteed_loot": {'Mysterious Gem': 1, 'gold_coins': 40, Named_Potions.small_health_potion: 2, Named_Potions.small_attack_potion: 2, Named_Potions.small_defense_potion: 2},
-            "nothing": [1, 0],
-            "gold_coins": [25, 30],
-            Named_Potions.small_health_potion: [2, 30], 
-            Named_Potions.small_attack_potion: [2, 15], 
-            Named_Potions.small_defense_potion: [2, 5],
-            tormunds_greatsword: [1, 20]
-            }
-        guard_boss = Monster("Tormund, the Reaper's Herald", '1d6 + 2', 'Human', tormund_loot, 1, 10, 1, 8, 8, 8, 300) # CHANGE THIS BACK TO 14, 10, 14, 8, 8, 8
+            gem_in_inv = False
+
+        guard_boss = Named_Monsters.tormund_the_repears_herald(gem_in_inv)
+
         printwait("You walk into the room but this room is different... No cobwebs in the corners and no mice or rats running around the floor.", 3)
         printwait("On the other side of the room is a large wooden door, clearly the way out of this dreadful place.", 3)
         printwait("Standing directly in front of that door is one of the largest men you've ever seen... A guard with ornate armor and a horned helmet.", 3)
@@ -273,7 +255,7 @@ class first_dungeon_jail_free_explore:
 
 
         if loot_result in ['no_loot', 'yes_loot', 'fled', 'death']:
-            return loot_result, no_gem
+            return loot_result, gem_in_inv
         else:
             print('Unknown Loot Error')
     
